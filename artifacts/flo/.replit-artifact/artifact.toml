@@ -12,10 +12,10 @@ version = "1.0.0"
 [[services]]
 name = "web"
 paths = [ "/" ]
-localPort = 20014
+localPort = 5173
 
 [services.development]
-run = "pnpm --filter @workspace/flo run dev"
+run = "/home/runner/workspace/artifacts/flo/dev.sh"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/flo", "run", "build" ]
@@ -27,5 +27,5 @@ from = "/*"
 to = "/index.html"
 
 [services.env]
-PORT = "20014"
+PORT = "5173"
 BASE_PATH = "/"
