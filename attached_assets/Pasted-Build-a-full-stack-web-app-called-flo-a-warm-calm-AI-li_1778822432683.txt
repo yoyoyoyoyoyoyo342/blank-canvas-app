@@ -1,0 +1,68 @@
+Build a full-stack web app called "flo." — a warm, calm AI life 
+assistant that generates a personalised daily briefing for the user.
+
+TECH STACK
+- Frontend: React + TypeScript + Tailwind CSS
+- Backend: Node.js + Express + TypeScript
+- Database: Supabase (I will provide URL and anon key)
+- Auth: Supabase Auth with Google OAuth
+- AI: Google Gemini 2.0 Flash API (I will provide key)
+- Weather: Rainz Weather API (public, no auth required)
+- Deployment: Replit
+
+BRAND
+- Name: flo. (always lowercase, dot is part of the name)
+- Font: Fraunces from Google Fonts, weight 200 throughout
+- Background: #0f0f0f
+- Primary text: #e8dfd4
+- Accent: #4a5e6e
+- Vibe: ultra minimal, calm, premium, lots of whitespace
+
+SCREENS
+Build exactly two screens for now:
+
+1. AUTH SCREEN
+- Large "flo." wordmark in Fraunces thin
+- Tagline: "your day, without the noise"
+- Single "continue with Google" button
+- Clean, centred layout, dark background
+
+2. DAILY BRIEFING SCREEN (after login)
+- Header: "good morning [first name]." in Fraunces italic thin
+- Today's date underneath in small muted text
+- Briefing card: AI-generated paragraph summarising the user's day
+- Below that: weather card showing current temp, condition, city
+- Below that: calendar events list for today pulled from 
+  Google Calendar
+- Below that: top 3 emails from Gmail summarised in one line each
+- Minimal card style, lots of breathing room, no harsh borders
+- Subtle fade-in animation on load
+
+INTEGRATIONS TO BUILD
+1. Google OAuth — scopes: calendar.readonly, gmail.readonly, 
+   profile, email
+2. Google Calendar API — fetch today's events for logged in user
+3. Gmail API — fetch last 5 unread emails, summarise with Gemini
+4. Weather — fetch from Rainz Weather API using the user's real 
+   device location via the browser Geolocation API. Once you have 
+   lat and lon, call:
+   https://rainz.net/api/weather?lat={lat}&lon={lon}
+   No auth needed. If the user denies location, fall back to 
+   Copenhagen (lat=55.68&lon=12.57)
+5. Gemini 2.0 Flash — generate a warm, calm 2-3 sentence morning 
+   briefing combining weather + calendar + email context
+
+SUPABASE SCHEMA
+Create these tables:
+- users: id, email, name, google_access_token, 
+  google_refresh_token, created_at
+- briefings: id, user_id, content, date, created_at
+
+RULES
+- All code modular — separate files for each integration
+- Full TypeScript throughout, no any types
+- Environment variables for all API keys, never hardcoded
+- Error states handled gracefully on every screen
+- Mobile responsive from day one
+- No comments in code
+- No placeholder or mock data — everything must be real and working
