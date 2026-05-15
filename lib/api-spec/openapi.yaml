@@ -1,22 +1,28 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: flo. API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: briefings
+    description: Daily briefing operations
+  - name: weather
+    description: Weather data
+  - name: calendar
+    description: Google Calendar events
+  - name: gmail
+    description: Gmail summaries
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +30,116 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /briefings/today:
+    get:
+      operationId: getTodayBriefing
+      tags: [briefings]
+      summary: Get or generate today's briefing
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Today's briefing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Briefing"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /weather:
+    get:
+      operationId: getWeather
+      tags: [weather]
+      summary: Get current weather
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Current weather data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Weather"
+        "500":
+          description: Weather fetch error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /calendar/today:
+    get:
+      operationId: getTodayEvents
+      tags: [calendar]
+      summary: Get today's calendar events
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Today's calendar events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /gmail/summaries:
+    get:
+      operationId: getGmailSummaries
+      tags: [gmail]
+      summary: Get top 3 summarised emails
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Email summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmailSummary"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +150,87 @@ components:
       required:
         - status
 
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Briefing:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        cached:
+          type: boolean
+      required:
+        - id
+        - content
+        - date
+        - cached
+
+    Weather:
+      type: object
+      properties:
+        temperature:
+          type: number
+        condition:
+          type: string
+        city:
+          type: string
+        icon:
+          type: ["string", "null"]
+      required:
+        - temperature
+        - condition
+        - city
+        - icon
+
+    CalendarEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        startTime:
+          type: ["string", "null"]
+        endTime:
+          type: ["string", "null"]
+        allDay:
+          type: boolean
+        location:
+          type: ["string", "null"]
+      required:
+        - id
+        - title
+        - startTime
+        - endTime
+        - allDay
+        - location
+
+    EmailSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        from:
+          type: string
+        subject:
+          type: string
+        summary:
+          type: string
+        receivedAt:
+          type: string
+      required:
+        - id
+        - from
+        - subject
+        - summary
+        - receivedAt
