@@ -1,79 +1,48 @@
--- flo. database schema
--- Run this in the Supabase SQL editor at https://supabase.com/dashboard
+The domain for this project is flo.localilabs.com — use this 
+everywhere, not any Replit URL.
 
--- briefings
-create table if not exists briefings (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  content text not null,
-  date date not null,
-  created_at timestamptz default now(),
-  unique(user_id, date)
-);
-alter table briefings enable row level security;
-create policy "Users own briefings" on briefings for all using (auth.uid() = user_id);
+Add a Spotify OAuth callback route to the existing Express backend.
+Do not change any existing code.
 
--- chats
-create table if not exists chats (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  role text not null check (role in ('user', 'assistant')),
-  content text not null,
-  created_at timestamptz default now()
-);
-alter table chats enable row level security;
-create policy "Users own chats" on chats for all using (auth.uid() = user_id);
+CREATE THIS ROUTE:
+File: src/routes/api/spotify/callback.ts
 
--- schedules
-create table if not exists schedules (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  day_of_week text not null,
-  start_time text not null,
-  end_time text not null,
-  subject text not null,
-  room text,
-  created_at timestamptz default now()
-);
-alter table schedules enable row level security;
-create policy "Users own schedules" on schedules for all using (auth.uid() = user_id);
+This route handles GET /api/spotify/callback
 
--- user_settings
-create table if not exists user_settings (
-  user_id uuid references auth.users(id) on delete cascade primary key,
-  city_override text,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-alter table user_settings enable row level security;
-create policy "Users own settings" on user_settings for all using (auth.uid() = user_id);
+It should:
+1. Read the "code" query param from the request
+2. Read the "state" query param and verify it matches what 
+   was stored in the session (to prevent CSRF attacks)
+3. Exchange the code for an access token and refresh token 
+   by making a POST request to:
+   https://accounts.spotify.com/api/token
+   with these params:
+   - grant_type: authorization_code
+   - code: the code from step 1
+   - redirect_uri: https://flo.localilabs.com/api/spotify/callback
+   - client_id: process.env.SPOTIFY_CLIENT_ID
+   - client_secret: process.env.SPOTIFY_CLIENT_SECRET
+4. Save the access_token and refresh_token to the 
+   spotify_connections table in Supabase for the logged 
+   in user
+5. On success redirect to: https://flo.localilabs.com/settings
+6. On failure redirect to: 
+   https://flo.localilabs.com/settings?error=spotify_failed
 
--- caldav_connections
-create table if not exists caldav_connections (
-  user_id uuid references auth.users(id) on delete cascade primary key,
-  icloud_email text not null,
-  app_password_encrypted text not null,
-  created_at timestamptz default now()
-);
-alter table caldav_connections enable row level security;
-create policy "Users own caldav" on caldav_connections for all using (auth.uid() = user_id);
+Also update the existing Spotify connect button/link in 
+the settings screen so it points to the Spotify auth URL:
+https://accounts.spotify.com/authorize?
+  client_id={SPOTIFY_CLIENT_ID}
+  &response_type=code
+  &redirect_uri=https://flo.localilabs.com/api/spotify/callback
+  &scope=user-read-private user-top-read playlist-read-private
+  &state={random_state_string}
 
--- aula_connections
-create table if not exists aula_connections (
-  user_id uuid references auth.users(id) on delete cascade primary key,
-  username_encrypted text not null,
-  password_encrypted text not null,
-  created_at timestamptz default now()
-);
-alter table aula_connections enable row level security;
-create policy "Users own aula" on aula_connections for all using (auth.uid() = user_id);
+Store the state string in the user session before redirecting 
+so it can be verified in the callback.
 
--- spotify_connections
-create table if not exists spotify_connections (
-  user_id uuid references auth.users(id) on delete cascade primary key,
-  access_token text not null,
-  refresh_token text not null,
-  created_at timestamptz default now()
-);
-alter table spotify_connections enable row level security;
-create policy "Users own spotify" on spotify_connections for all using (auth.uid() = user_id);
+RULES
+- TypeScript, no any types
+- No comments in code
+- All credentials via environment variables
+- Handle errors gracefully

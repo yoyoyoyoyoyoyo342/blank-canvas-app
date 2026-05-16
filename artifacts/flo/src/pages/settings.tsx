@@ -111,7 +111,7 @@ export default function SettingsScreen({ accessToken, firstName, email }: Settin
   };
 
   const handleSpotifyConnect = async () => {
-    const resp = await fetch(`/api/spotify/auth-url?state=${encodeURIComponent(accessToken)}`);
+    const resp = await fetch(`/api/spotify/secure-connect-url?access_token=${encodeURIComponent(accessToken)}`);
     if (!resp.ok) return;
     const { url } = await resp.json() as { url: string };
     window.location.href = url;
