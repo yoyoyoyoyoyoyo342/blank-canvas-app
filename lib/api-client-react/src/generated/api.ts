@@ -6,30 +6,61 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
   ApiError,
+  AulaCredentials,
+  AulaData,
   Briefing,
+  CalDavCredentials,
   CalendarEvent,
+  ChatMessage,
+  ConnectAulaParams,
+  ConnectCalDavParams,
+  ConnectResult,
+  ConnectSpotifyParams,
+  CreateScheduleEntryParams,
   EmailSummary,
+  GeoLocation,
+  GeocodeCityParams,
+  GetAulaDataParams,
+  GetCalDavEventsParams,
+  GetCalDavRemindersParams,
+  GetChatHistoryParams,
   GetGmailSummariesParams,
+  GetSchedulesParams,
+  GetSettingsParams,
+  GetSpotifyRecommendationParams,
   GetTodayBriefingParams,
   GetTodayEventsParams,
   GetWeatherParams,
   HealthStatus,
+  Reminder,
+  RemoveScheduleEntryParams,
+  ScheduleEntry,
+  ScheduleEntryInput,
+  SpotifyRecommendation,
+  SpotifyTokens,
+  UpdateSettingsParams,
+  UserSettings,
+  UserSettingsInput,
   Weather
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -441,6 +472,1150 @@ export function useGetGmailSummaries<TData = Awaited<ReturnType<typeof getGmailS
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetGmailSummariesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getConnectCalDavUrl = (params: ConnectCalDavParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/caldav/connect?${stringifiedParams}` : `/api/caldav/connect`
+}
+
+/**
+ * @summary Save iCloud credentials for CalDAV
+ */
+export const connectCalDav = async (calDavCredentials: CalDavCredentials,
+    params: ConnectCalDavParams, options?: RequestInit): Promise<ConnectResult> => {
+
+  return customFetch<ConnectResult>(getConnectCalDavUrl(params),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      calDavCredentials,)
+  }
+);}
+
+
+
+
+export const getConnectCalDavMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof connectCalDav>>, TError,{data: BodyType<CalDavCredentials>;params: ConnectCalDavParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof connectCalDav>>, TError,{data: BodyType<CalDavCredentials>;params: ConnectCalDavParams}, TContext> => {
+
+const mutationKey = ['connectCalDav'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof connectCalDav>>, {data: BodyType<CalDavCredentials>;params: ConnectCalDavParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  connectCalDav(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ConnectCalDavMutationResult = NonNullable<Awaited<ReturnType<typeof connectCalDav>>>
+    export type ConnectCalDavMutationBody = BodyType<CalDavCredentials>
+    export type ConnectCalDavMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Save iCloud credentials for CalDAV
+ */
+export const useConnectCalDav = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof connectCalDav>>, TError,{data: BodyType<CalDavCredentials>;params: ConnectCalDavParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof connectCalDav>>,
+        TError,
+        {data: BodyType<CalDavCredentials>;params: ConnectCalDavParams},
+        TContext
+      > => {
+      return useMutation(getConnectCalDavMutationOptions(options));
+    }
+
+export const getGetCalDavEventsUrl = (params: GetCalDavEventsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/caldav/events?${stringifiedParams}` : `/api/caldav/events`
+}
+
+/**
+ * @summary Get today's Apple Calendar events
+ */
+export const getCalDavEvents = async (params: GetCalDavEventsParams, options?: RequestInit): Promise<CalendarEvent[]> => {
+
+  return customFetch<CalendarEvent[]>(getGetCalDavEventsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCalDavEventsQueryKey = (params?: GetCalDavEventsParams,) => {
+    return [
+    `/api/caldav/events`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetCalDavEventsQueryOptions = <TData = Awaited<ReturnType<typeof getCalDavEvents>>, TError = ErrorType<ApiError>>(params: GetCalDavEventsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCalDavEvents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCalDavEventsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCalDavEvents>>> = ({ signal }) => getCalDavEvents(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCalDavEvents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCalDavEventsQueryResult = NonNullable<Awaited<ReturnType<typeof getCalDavEvents>>>
+export type GetCalDavEventsQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get today's Apple Calendar events
+ */
+
+export function useGetCalDavEvents<TData = Awaited<ReturnType<typeof getCalDavEvents>>, TError = ErrorType<ApiError>>(
+ params: GetCalDavEventsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCalDavEvents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCalDavEventsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetCalDavRemindersUrl = (params: GetCalDavRemindersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/caldav/reminders?${stringifiedParams}` : `/api/caldav/reminders`
+}
+
+/**
+ * @summary Get upcoming Apple Reminders
+ */
+export const getCalDavReminders = async (params: GetCalDavRemindersParams, options?: RequestInit): Promise<Reminder[]> => {
+
+  return customFetch<Reminder[]>(getGetCalDavRemindersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCalDavRemindersQueryKey = (params?: GetCalDavRemindersParams,) => {
+    return [
+    `/api/caldav/reminders`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetCalDavRemindersQueryOptions = <TData = Awaited<ReturnType<typeof getCalDavReminders>>, TError = ErrorType<ApiError>>(params: GetCalDavRemindersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCalDavReminders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCalDavRemindersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCalDavReminders>>> = ({ signal }) => getCalDavReminders(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCalDavReminders>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCalDavRemindersQueryResult = NonNullable<Awaited<ReturnType<typeof getCalDavReminders>>>
+export type GetCalDavRemindersQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get upcoming Apple Reminders
+ */
+
+export function useGetCalDavReminders<TData = Awaited<ReturnType<typeof getCalDavReminders>>, TError = ErrorType<ApiError>>(
+ params: GetCalDavRemindersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCalDavReminders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCalDavRemindersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetAulaDataUrl = (params: GetAulaDataParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/aula/data?${stringifiedParams}` : `/api/aula/data`
+}
+
+/**
+ * @summary Get Aula school data
+ */
+export const getAulaData = async (params: GetAulaDataParams, options?: RequestInit): Promise<AulaData> => {
+
+  return customFetch<AulaData>(getGetAulaDataUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAulaDataQueryKey = (params?: GetAulaDataParams,) => {
+    return [
+    `/api/aula/data`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAulaDataQueryOptions = <TData = Awaited<ReturnType<typeof getAulaData>>, TError = ErrorType<ApiError>>(params: GetAulaDataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAulaData>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAulaDataQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAulaData>>> = ({ signal }) => getAulaData(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAulaData>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAulaDataQueryResult = NonNullable<Awaited<ReturnType<typeof getAulaData>>>
+export type GetAulaDataQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get Aula school data
+ */
+
+export function useGetAulaData<TData = Awaited<ReturnType<typeof getAulaData>>, TError = ErrorType<ApiError>>(
+ params: GetAulaDataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAulaData>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAulaDataQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getConnectAulaUrl = (params: ConnectAulaParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/aula/connect?${stringifiedParams}` : `/api/aula/connect`
+}
+
+/**
+ * @summary Save Aula credentials
+ */
+export const connectAula = async (aulaCredentials: AulaCredentials,
+    params: ConnectAulaParams, options?: RequestInit): Promise<ConnectResult> => {
+
+  return customFetch<ConnectResult>(getConnectAulaUrl(params),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      aulaCredentials,)
+  }
+);}
+
+
+
+
+export const getConnectAulaMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof connectAula>>, TError,{data: BodyType<AulaCredentials>;params: ConnectAulaParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof connectAula>>, TError,{data: BodyType<AulaCredentials>;params: ConnectAulaParams}, TContext> => {
+
+const mutationKey = ['connectAula'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof connectAula>>, {data: BodyType<AulaCredentials>;params: ConnectAulaParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  connectAula(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ConnectAulaMutationResult = NonNullable<Awaited<ReturnType<typeof connectAula>>>
+    export type ConnectAulaMutationBody = BodyType<AulaCredentials>
+    export type ConnectAulaMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Save Aula credentials
+ */
+export const useConnectAula = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof connectAula>>, TError,{data: BodyType<AulaCredentials>;params: ConnectAulaParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof connectAula>>,
+        TError,
+        {data: BodyType<AulaCredentials>;params: ConnectAulaParams},
+        TContext
+      > => {
+      return useMutation(getConnectAulaMutationOptions(options));
+    }
+
+export const getGetSchedulesUrl = (params: GetSchedulesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/schedules?${stringifiedParams}` : `/api/schedules`
+}
+
+/**
+ * @summary Get user's schedule entries
+ */
+export const getSchedules = async (params: GetSchedulesParams, options?: RequestInit): Promise<ScheduleEntry[]> => {
+
+  return customFetch<ScheduleEntry[]>(getGetSchedulesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSchedulesQueryKey = (params?: GetSchedulesParams,) => {
+    return [
+    `/api/schedules`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSchedulesQueryOptions = <TData = Awaited<ReturnType<typeof getSchedules>>, TError = ErrorType<ApiError>>(params: GetSchedulesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSchedules>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSchedulesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSchedules>>> = ({ signal }) => getSchedules(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSchedules>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSchedulesQueryResult = NonNullable<Awaited<ReturnType<typeof getSchedules>>>
+export type GetSchedulesQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get user's schedule entries
+ */
+
+export function useGetSchedules<TData = Awaited<ReturnType<typeof getSchedules>>, TError = ErrorType<ApiError>>(
+ params: GetSchedulesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSchedules>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSchedulesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateScheduleEntryUrl = (params: CreateScheduleEntryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/schedules?${stringifiedParams}` : `/api/schedules`
+}
+
+/**
+ * @summary Create a schedule entry
+ */
+export const createScheduleEntry = async (scheduleEntryInput: ScheduleEntryInput,
+    params: CreateScheduleEntryParams, options?: RequestInit): Promise<ScheduleEntry> => {
+
+  return customFetch<ScheduleEntry>(getCreateScheduleEntryUrl(params),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      scheduleEntryInput,)
+  }
+);}
+
+
+
+
+export const getCreateScheduleEntryMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createScheduleEntry>>, TError,{data: BodyType<ScheduleEntryInput>;params: CreateScheduleEntryParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createScheduleEntry>>, TError,{data: BodyType<ScheduleEntryInput>;params: CreateScheduleEntryParams}, TContext> => {
+
+const mutationKey = ['createScheduleEntry'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createScheduleEntry>>, {data: BodyType<ScheduleEntryInput>;params: CreateScheduleEntryParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  createScheduleEntry(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateScheduleEntryMutationResult = NonNullable<Awaited<ReturnType<typeof createScheduleEntry>>>
+    export type CreateScheduleEntryMutationBody = BodyType<ScheduleEntryInput>
+    export type CreateScheduleEntryMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Create a schedule entry
+ */
+export const useCreateScheduleEntry = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createScheduleEntry>>, TError,{data: BodyType<ScheduleEntryInput>;params: CreateScheduleEntryParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createScheduleEntry>>,
+        TError,
+        {data: BodyType<ScheduleEntryInput>;params: CreateScheduleEntryParams},
+        TContext
+      > => {
+      return useMutation(getCreateScheduleEntryMutationOptions(options));
+    }
+
+export const getRemoveScheduleEntryUrl = (params: RemoveScheduleEntryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/schedules/delete?${stringifiedParams}` : `/api/schedules/delete`
+}
+
+/**
+ * @summary Delete a schedule entry
+ */
+export const removeScheduleEntry = async (params: RemoveScheduleEntryParams, options?: RequestInit): Promise<ConnectResult> => {
+
+  return customFetch<ConnectResult>(getRemoveScheduleEntryUrl(params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getRemoveScheduleEntryMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeScheduleEntry>>, TError,{params: RemoveScheduleEntryParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof removeScheduleEntry>>, TError,{params: RemoveScheduleEntryParams}, TContext> => {
+
+const mutationKey = ['removeScheduleEntry'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeScheduleEntry>>, {params: RemoveScheduleEntryParams}> = (props) => {
+          const {params} = props ?? {};
+
+          return  removeScheduleEntry(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RemoveScheduleEntryMutationResult = NonNullable<Awaited<ReturnType<typeof removeScheduleEntry>>>
+
+    export type RemoveScheduleEntryMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Delete a schedule entry
+ */
+export const useRemoveScheduleEntry = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeScheduleEntry>>, TError,{params: RemoveScheduleEntryParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof removeScheduleEntry>>,
+        TError,
+        {params: RemoveScheduleEntryParams},
+        TContext
+      > => {
+      return useMutation(getRemoveScheduleEntryMutationOptions(options));
+    }
+
+export const getConnectSpotifyUrl = (params: ConnectSpotifyParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/spotify/connect?${stringifiedParams}` : `/api/spotify/connect`
+}
+
+/**
+ * @summary Save Spotify OAuth tokens
+ */
+export const connectSpotify = async (spotifyTokens: SpotifyTokens,
+    params: ConnectSpotifyParams, options?: RequestInit): Promise<ConnectResult> => {
+
+  return customFetch<ConnectResult>(getConnectSpotifyUrl(params),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      spotifyTokens,)
+  }
+);}
+
+
+
+
+export const getConnectSpotifyMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof connectSpotify>>, TError,{data: BodyType<SpotifyTokens>;params: ConnectSpotifyParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof connectSpotify>>, TError,{data: BodyType<SpotifyTokens>;params: ConnectSpotifyParams}, TContext> => {
+
+const mutationKey = ['connectSpotify'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof connectSpotify>>, {data: BodyType<SpotifyTokens>;params: ConnectSpotifyParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  connectSpotify(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ConnectSpotifyMutationResult = NonNullable<Awaited<ReturnType<typeof connectSpotify>>>
+    export type ConnectSpotifyMutationBody = BodyType<SpotifyTokens>
+    export type ConnectSpotifyMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Save Spotify OAuth tokens
+ */
+export const useConnectSpotify = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof connectSpotify>>, TError,{data: BodyType<SpotifyTokens>;params: ConnectSpotifyParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof connectSpotify>>,
+        TError,
+        {data: BodyType<SpotifyTokens>;params: ConnectSpotifyParams},
+        TContext
+      > => {
+      return useMutation(getConnectSpotifyMutationOptions(options));
+    }
+
+export const getGetSpotifyRecommendationUrl = (params: GetSpotifyRecommendationParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/spotify/recommend?${stringifiedParams}` : `/api/spotify/recommend`
+}
+
+/**
+ * @summary Get AI playlist recommendation for the day
+ */
+export const getSpotifyRecommendation = async (params: GetSpotifyRecommendationParams, options?: RequestInit): Promise<SpotifyRecommendation> => {
+
+  return customFetch<SpotifyRecommendation>(getGetSpotifyRecommendationUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpotifyRecommendationQueryKey = (params?: GetSpotifyRecommendationParams,) => {
+    return [
+    `/api/spotify/recommend`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSpotifyRecommendationQueryOptions = <TData = Awaited<ReturnType<typeof getSpotifyRecommendation>>, TError = ErrorType<ApiError>>(params: GetSpotifyRecommendationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecommendation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpotifyRecommendationQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpotifyRecommendation>>> = ({ signal }) => getSpotifyRecommendation(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecommendation>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpotifyRecommendationQueryResult = NonNullable<Awaited<ReturnType<typeof getSpotifyRecommendation>>>
+export type GetSpotifyRecommendationQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get AI playlist recommendation for the day
+ */
+
+export function useGetSpotifyRecommendation<TData = Awaited<ReturnType<typeof getSpotifyRecommendation>>, TError = ErrorType<ApiError>>(
+ params: GetSpotifyRecommendationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecommendation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpotifyRecommendationQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetChatHistoryUrl = (params: GetChatHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/chat/history?${stringifiedParams}` : `/api/chat/history`
+}
+
+/**
+ * @summary Get chat history for user
+ */
+export const getChatHistory = async (params: GetChatHistoryParams, options?: RequestInit): Promise<ChatMessage[]> => {
+
+  return customFetch<ChatMessage[]>(getGetChatHistoryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetChatHistoryQueryKey = (params?: GetChatHistoryParams,) => {
+    return [
+    `/api/chat/history`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetChatHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getChatHistory>>, TError = ErrorType<ApiError>>(params: GetChatHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getChatHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetChatHistoryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getChatHistory>>> = ({ signal }) => getChatHistory(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getChatHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetChatHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getChatHistory>>>
+export type GetChatHistoryQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get chat history for user
+ */
+
+export function useGetChatHistory<TData = Awaited<ReturnType<typeof getChatHistory>>, TError = ErrorType<ApiError>>(
+ params: GetChatHistoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getChatHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetChatHistoryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSettingsUrl = (params: GetSettingsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/settings?${stringifiedParams}` : `/api/settings`
+}
+
+/**
+ * @summary Get user settings
+ */
+export const getSettings = async (params: GetSettingsParams, options?: RequestInit): Promise<UserSettings> => {
+
+  return customFetch<UserSettings>(getGetSettingsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSettingsQueryKey = (params?: GetSettingsParams,) => {
+    return [
+    `/api/settings`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<ApiError>>(params: GetSettingsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSettingsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSettings>>> = ({ signal }) => getSettings(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getSettings>>>
+export type GetSettingsQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get user settings
+ */
+
+export function useGetSettings<TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<ApiError>>(
+ params: GetSettingsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSettingsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateSettingsUrl = (params: UpdateSettingsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/settings?${stringifiedParams}` : `/api/settings`
+}
+
+/**
+ * @summary Update user settings
+ */
+export const updateSettings = async (userSettingsInput: UserSettingsInput,
+    params: UpdateSettingsParams, options?: RequestInit): Promise<UserSettings> => {
+
+  return customFetch<UserSettings>(getUpdateSettingsUrl(params),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      userSettingsInput,)
+  }
+);}
+
+
+
+
+export const getUpdateSettingsMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,{data: BodyType<UserSettingsInput>;params: UpdateSettingsParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,{data: BodyType<UserSettingsInput>;params: UpdateSettingsParams}, TContext> => {
+
+const mutationKey = ['updateSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSettings>>, {data: BodyType<UserSettingsInput>;params: UpdateSettingsParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  updateSettings(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateSettings>>>
+    export type UpdateSettingsMutationBody = BodyType<UserSettingsInput>
+    export type UpdateSettingsMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Update user settings
+ */
+export const useUpdateSettings = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,{data: BodyType<UserSettingsInput>;params: UpdateSettingsParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateSettings>>,
+        TError,
+        {data: BodyType<UserSettingsInput>;params: UpdateSettingsParams},
+        TContext
+      > => {
+      return useMutation(getUpdateSettingsMutationOptions(options));
+    }
+
+export const getGeocodeCityUrl = (params: GeocodeCityParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/geocode?${stringifiedParams}` : `/api/geocode`
+}
+
+/**
+ * @summary Geocode a city name to lat/lon
+ */
+export const geocodeCity = async (params: GeocodeCityParams, options?: RequestInit): Promise<GeoLocation> => {
+
+  return customFetch<GeoLocation>(getGeocodeCityUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGeocodeCityQueryKey = (params?: GeocodeCityParams,) => {
+    return [
+    `/api/geocode`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGeocodeCityQueryOptions = <TData = Awaited<ReturnType<typeof geocodeCity>>, TError = ErrorType<ApiError>>(params: GeocodeCityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof geocodeCity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGeocodeCityQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof geocodeCity>>> = ({ signal }) => geocodeCity(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof geocodeCity>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GeocodeCityQueryResult = NonNullable<Awaited<ReturnType<typeof geocodeCity>>>
+export type GeocodeCityQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Geocode a city name to lat/lon
+ */
+
+export function useGeocodeCity<TData = Awaited<ReturnType<typeof geocodeCity>>, TError = ErrorType<ApiError>>(
+ params: GeocodeCityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof geocodeCity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGeocodeCityQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

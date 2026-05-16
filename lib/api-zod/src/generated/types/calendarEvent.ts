@@ -5,6 +5,7 @@
  * flo. API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CalendarEventSource } from './calendarEventSource';
 
 export interface CalendarEvent {
   id: string;
@@ -16,4 +17,5 @@ export interface CalendarEvent {
   allDay: boolean;
   /** @nullable */
   location: string | null;
+  source: CalendarEventSource;
 }

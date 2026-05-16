@@ -7,6 +7,11 @@ import { Session } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import AuthScreen from "@/pages/auth";
 import BriefingScreen from "@/pages/briefing";
+import ChatScreen from "@/pages/chat";
+import SettingsScreen from "@/pages/settings";
+import PrivacyPage from "@/pages/privacy";
+import CookiesPage from "@/pages/cookies";
+import TermsPage from "@/pages/terms";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -16,8 +21,8 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!document.documentElement.classList.contains('dark')) {
-      document.documentElement.classList.add('dark');
+    if (!document.documentElement.classList.contains("dark")) {
+      document.documentElement.classList.add("dark");
     }
 
     if (!isSupabaseConfigured) {
@@ -25,14 +30,12 @@ function App() {
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
+      setSession(data.session);
       setLoading(false);
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       setSession(session);
       setLoading(false);
     });
@@ -41,9 +44,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen w-full bg-background flex items-center justify-center" />
-    );
+    return <div className="min-h-screen w-full bg-background flex items-center justify-center" />;
   }
 
   if (!isSupabaseConfigured) {
@@ -51,36 +52,36 @@ function App() {
       <div className="min-h-screen w-full bg-background text-foreground flex flex-col items-center justify-center gap-6 px-6">
         <h1 className="text-5xl font-light italic tracking-tight">flo.</h1>
         <p className="text-sm text-muted-foreground text-center max-w-sm leading-relaxed">
-          to get started, add your <span className="text-foreground">VITE_SUPABASE_URL</span> and <span className="text-foreground">VITE_SUPABASE_ANON_KEY</span> environment variables.
+          add <span className="text-foreground">VITE_SUPABASE_URL</span> and{" "}
+          <span className="text-foreground">VITE_SUPABASE_ANON_KEY</span> to your environment variables to get started.
         </p>
       </div>
     );
   }
+
+  const accessToken = session?.provider_token ?? session?.access_token ?? "";
+  const firstName = session?.user.user_metadata.full_name?.split(" ")[0] ?? session?.user.email?.split("@")[0] ?? "there";
+  const email = session?.user.email ?? "";
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Switch>
-            <Route path="/auth">
-              {session ? (
-                <BriefingScreen
-                  firstName={session.user.user_metadata.full_name?.split(' ')[0] || session.user.email?.split('@')[0] || "there"}
-                  accessToken={session.provider_token || session.access_token}
-                />
-              ) : (
-                <AuthScreen />
-              )}
-            </Route>
+            <Route path="/privacy" component={PrivacyPage} />
+            <Route path="/cookies" component={CookiesPage} />
+            <Route path="/terms" component={TermsPage} />
             <Route path="/">
-              {session ? (
-                <BriefingScreen
-                  firstName={session.user.user_metadata.full_name?.split(' ')[0] || session.user.email?.split('@')[0] || "there"}
-                  accessToken={session.provider_token || session.access_token}
-                />
-              ) : (
-                <AuthScreen />
-              )}
+              {session ? <BriefingScreen firstName={firstName} accessToken={accessToken} /> : <AuthScreen />}
+            </Route>
+            <Route path="/chat">
+              {session ? <ChatScreen accessToken={accessToken} firstName={firstName} /> : <AuthScreen />}
+            </Route>
+            <Route path="/settings">
+              {session ? <SettingsScreen accessToken={accessToken} firstName={firstName} email={email} /> : <AuthScreen />}
+            </Route>
+            <Route path="/auth">
+              {session ? <BriefingScreen firstName={firstName} accessToken={accessToken} /> : <AuthScreen />}
             </Route>
             <Route component={NotFound} />
           </Switch>

@@ -1,15 +1,9 @@
 import { Router } from "express";
-import { createClient } from "@supabase/supabase-js";
 import Groq from "groq-sdk";
+import { supabase, getUserFromToken } from "../lib/supabase.js";
 import { GetGmailSummariesQueryParams } from "@workspace/api-zod";
 
 const router = Router();
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
-
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 interface GmailMessage {
@@ -24,90 +18,51 @@ interface GmailMessage {
 
 interface GmailListResponse {
   messages?: Array<{ id: string }>;
-  error?: { message: string };
 }
 
 function decodeBase64(encoded: string): string {
   const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
-  try {
-    return Buffer.from(base64, "base64").toString("utf-8");
-  } catch {
-    return "";
-  }
+  try { return Buffer.from(base64, "base64").toString("utf-8"); } catch { return ""; }
 }
 
 function extractBody(message: GmailMessage): string {
   const payload = message.payload;
   if (!payload) return "";
-
-  if (payload.body?.data) {
-    return decodeBase64(payload.body.data).slice(0, 500);
-  }
-
+  if (payload.body?.data) return decodeBase64(payload.body.data).slice(0, 500);
   const textPart = payload.parts?.find((p) => p.mimeType === "text/plain");
-  if (textPart?.body?.data) {
-    return decodeBase64(textPart.body.data).slice(0, 500);
-  }
-
+  if (textPart?.body?.data) return decodeBase64(textPart.body.data).slice(0, 500);
   return "";
 }
 
 function getHeader(message: GmailMessage, name: string): string {
-  return (
-    message.payload?.headers?.find(
-      (h) => h.name.toLowerCase() === name.toLowerCase()
-    )?.value ?? ""
-  );
+  return message.payload?.headers?.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value ?? "";
 }
 
 router.get("/gmail/summaries", async (req, res) => {
   const parsed = GetGmailSummariesQueryParams.safeParse(req.query);
-  if (!parsed.success) {
-    res.status(400).json({ error: "Missing access_token" });
-    return;
-  }
+  if (!parsed.success) { res.status(400).json({ error: "Missing access_token" }); return; }
 
   const { access_token } = parsed.data;
-
   const { data: userData, error: userError } = await supabase.auth.getUser(access_token);
-  if (userError || !userData.user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
+  if (userError || !userData.user) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { data: sessionData } = await supabase.auth.getSession();
-  const googleToken =
-    sessionData?.session?.provider_token ??
-    userData.user?.user_metadata?.provider_token ??
-    access_token;
+  const googleToken = userData.user?.user_metadata?.provider_token ?? access_token;
 
   try {
     const listResponse = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages?` +
-        new URLSearchParams({
-          q: "is:unread",
-          maxResults: "5",
-        }),
-      {
-        headers: { Authorization: `Bearer ${googleToken}` },
-      }
+        new URLSearchParams({ q: "is:unread", maxResults: "5" }),
+      { headers: { Authorization: `Bearer ${googleToken}` } }
     );
 
     if (!listResponse.ok) {
-      if (listResponse.status === 401) {
-        res.status(401).json({ error: "Gmail access denied" });
-        return;
-      }
+      if (listResponse.status === 401) { res.status(401).json({ error: "Gmail access denied" }); return; }
       throw new Error(`Gmail API error: ${listResponse.status}`);
     }
 
     const listData = (await listResponse.json()) as GmailListResponse;
     const messageIds = (listData.messages ?? []).slice(0, 5);
-
-    if (messageIds.length === 0) {
-      res.json([]);
-      return;
-    }
+    if (messageIds.length === 0) { res.json([]); return; }
 
     const messages = await Promise.all(
       messageIds.map(async ({ id }) => {
@@ -137,23 +92,13 @@ router.get("/gmail/summaries", async (req, res) => {
             const completion = await groq.chat.completions.create({
               model: "llama-3.3-70b-versatile",
               messages: [
-                {
-                  role: "system",
-                  content:
-                    "Summarise this email in one short sentence (max 15 words). Be direct and factual. No fluff.",
-                },
-                {
-                  role: "user",
-                  content: `Subject: ${subject}\n\n${body}`,
-                },
+                { role: "system", content: "Summarise this email in one short sentence (max 15 words). Be direct and factual." },
+                { role: "user", content: `Subject: ${subject}\n\n${body}` },
               ],
               max_tokens: 60,
             });
-            summary =
-              completion.choices[0]?.message?.content?.trim() ?? subject;
-          } catch {
-            summary = subject;
-          }
+            summary = completion.choices[0]?.message?.content?.trim() ?? subject;
+          } catch { summary = subject; }
         }
 
         return { id: message.id, from, subject, summary, receivedAt };

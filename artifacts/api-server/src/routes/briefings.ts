@@ -1,22 +1,10 @@
 import { Router } from "express";
-import { createClient } from "@supabase/supabase-js";
 import Groq from "groq-sdk";
+import { supabase, getUserFromToken } from "../lib/supabase.js";
 import { GetTodayBriefingQueryParams } from "@workspace/api-zod";
 
 const router = Router();
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
-
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
-async function getUserFromToken(accessToken: string) {
-  const { data, error } = await supabase.auth.getUser(accessToken);
-  if (error || !data.user) return null;
-  return data.user;
-}
 
 router.get("/briefings/today", async (req, res) => {
   const parsed = GetTodayBriefingQueryParams.safeParse(req.query);
@@ -42,17 +30,11 @@ router.get("/briefings/today", async (req, res) => {
     .single();
 
   if (existing) {
-    res.json({
-      id: existing.id,
-      content: existing.content,
-      date: existing.date,
-      cached: true,
-    });
+    res.json({ id: existing.id, content: existing.content, date: existing.date, cached: true });
     return;
   }
 
   try {
-    const weatherContext = "weather data unavailable";
     const name = user.user_metadata?.full_name?.split(" ")[0] || "there";
 
     const completion = await groq.chat.completions.create({
@@ -65,7 +47,7 @@ router.get("/briefings/today", async (req, res) => {
         },
         {
           role: "user",
-          content: `Generate a morning briefing for ${name}. Today is ${new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}. Context: ${weatherContext}. Keep it to 2-3 sentences.`,
+          content: `Generate a morning briefing for ${name}. Today is ${new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}. Keep it to 2-3 sentences.`,
         },
       ],
       max_tokens: 200,
@@ -77,11 +59,7 @@ router.get("/briefings/today", async (req, res) => {
 
     const { data: saved, error: saveError } = await supabase
       .from("briefings")
-      .insert({
-        user_id: user.id,
-        content,
-        date: today,
-      })
+      .insert({ user_id: user.id, content, date: today })
       .select()
       .single();
 

@@ -13,6 +13,11 @@ export interface ApiError {
   error: string;
 }
 
+export interface ConnectResult {
+  success: boolean;
+  message: string;
+}
+
 export interface Briefing {
   id: string;
   content: string;
@@ -28,6 +33,15 @@ export interface Weather {
   icon: string | null;
 }
 
+export type CalendarEventSource = typeof CalendarEventSource[keyof typeof CalendarEventSource];
+
+
+export const CalendarEventSource = {
+  google: 'google',
+  apple: 'apple',
+  aula: 'aula',
+} as const;
+
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -38,6 +52,7 @@ export interface CalendarEvent {
   allDay: boolean;
   /** @nullable */
   location: string | null;
+  source: CalendarEventSource;
 }
 
 export interface EmailSummary {
@@ -46,6 +61,117 @@ export interface EmailSummary {
   subject: string;
   summary: string;
   receivedAt: string;
+}
+
+export interface CalDavCredentials {
+  icloud_email: string;
+  app_password: string;
+}
+
+export interface Reminder {
+  id: string;
+  title: string;
+  /** @nullable */
+  dueDate: string | null;
+  completed: boolean;
+  listName: string;
+}
+
+export interface AulaCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AulaMessage {
+  id: string;
+  subject: string;
+  sender: string;
+  preview: string;
+  receivedAt: string;
+}
+
+export interface AulaScheduleItem {
+  id: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  childName: string;
+}
+
+export interface AulaData {
+  messages: AulaMessage[];
+  schedule: AulaScheduleItem[];
+  children: string[];
+}
+
+export interface ScheduleEntry {
+  id: string;
+  day_of_week: string;
+  start_time: string;
+  end_time: string;
+  subject: string;
+  /** @nullable */
+  room: string | null;
+}
+
+export interface ScheduleEntryInput {
+  day_of_week: string;
+  start_time: string;
+  end_time: string;
+  subject: string;
+  /** @nullable */
+  room?: string | null;
+}
+
+export interface SpotifyTokens {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface SpotifyPlaylistSuggestion {
+  id: string;
+  name: string;
+  reason: string;
+  uri: string;
+}
+
+export interface SpotifyRecommendation {
+  playlists: SpotifyPlaylistSuggestion[];
+  context: string;
+}
+
+export type ChatMessageRole = typeof ChatMessageRole[keyof typeof ChatMessageRole];
+
+
+export const ChatMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+} as const;
+
+export interface ChatMessage {
+  id: string;
+  role: ChatMessageRole;
+  content: string;
+  created_at: string;
+}
+
+export interface UserSettings {
+  /** @nullable */
+  city_override: string | null;
+  spotify_connected: boolean;
+  caldav_connected: boolean;
+  aula_connected: boolean;
+}
+
+export interface UserSettingsInput {
+  /** @nullable */
+  city_override?: string | null;
+}
+
+export interface GeoLocation {
+  lat: number;
+  lon: number;
+  city: string;
 }
 
 export type GetTodayBriefingParams = {
@@ -63,5 +189,62 @@ access_token: string;
 
 export type GetGmailSummariesParams = {
 access_token: string;
+};
+
+export type ConnectCalDavParams = {
+access_token: string;
+};
+
+export type GetCalDavEventsParams = {
+access_token: string;
+};
+
+export type GetCalDavRemindersParams = {
+access_token: string;
+};
+
+export type GetAulaDataParams = {
+access_token: string;
+};
+
+export type ConnectAulaParams = {
+access_token: string;
+};
+
+export type GetSchedulesParams = {
+access_token: string;
+};
+
+export type CreateScheduleEntryParams = {
+access_token: string;
+};
+
+export type RemoveScheduleEntryParams = {
+id: string;
+access_token: string;
+};
+
+export type ConnectSpotifyParams = {
+access_token: string;
+};
+
+export type GetSpotifyRecommendationParams = {
+access_token: string;
+};
+
+export type GetChatHistoryParams = {
+access_token: string;
+};
+
+export type GetSettingsParams = {
+access_token: string;
+};
+
+export type UpdateSettingsParams = {
+access_token: string;
+};
+
+export type GeocodeCityParams = {
+city: string;
 };
 

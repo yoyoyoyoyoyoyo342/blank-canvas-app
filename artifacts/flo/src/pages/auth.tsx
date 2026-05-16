@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Footer from "@/components/footer";
 
 export default function AuthScreen() {
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ export default function AuthScreen() {
 
   return (
     <div className="min-h-[100dvh] w-full flex flex-col items-center justify-center bg-background text-foreground font-sans">
-      <div className="text-center space-y-8 animate-in fade-in duration-1000">
+      <div className="text-center space-y-8 animate-in fade-in duration-1000 flex-1 flex flex-col items-center justify-center">
         <div>
           <h1 className="text-6xl font-light tracking-tight">flo.</h1>
           <p className="mt-4 text-muted-foreground italic text-sm tracking-wide">
@@ -31,6 +32,7 @@ export default function AuthScreen() {
           {loading ? "connecting..." : "continue with Google"}
         </button>
       </div>
+      <Footer />
     </div>
   );
 }

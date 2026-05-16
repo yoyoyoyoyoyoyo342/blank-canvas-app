@@ -60,7 +60,8 @@ export const GetTodayEventsResponseItem = zod.object({
   "startTime": zod.string().nullable(),
   "endTime": zod.string().nullable(),
   "allDay": zod.boolean(),
-  "location": zod.string().nullable()
+  "location": zod.string().nullable(),
+  "source": zod.enum(['google', 'apple', 'aula'])
 })
 export const GetTodayEventsResponse = zod.array(GetTodayEventsResponseItem)
 
@@ -80,5 +81,251 @@ export const GetGmailSummariesResponseItem = zod.object({
   "receivedAt": zod.string()
 })
 export const GetGmailSummariesResponse = zod.array(GetGmailSummariesResponseItem)
+
+
+/**
+ * @summary Save iCloud credentials for CalDAV
+ */
+export const ConnectCalDavQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const ConnectCalDavBody = zod.object({
+  "icloud_email": zod.string(),
+  "app_password": zod.string()
+})
+
+export const ConnectCalDavResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Get today's Apple Calendar events
+ */
+export const GetCalDavEventsQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetCalDavEventsResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "startTime": zod.string().nullable(),
+  "endTime": zod.string().nullable(),
+  "allDay": zod.boolean(),
+  "location": zod.string().nullable(),
+  "source": zod.enum(['google', 'apple', 'aula'])
+})
+export const GetCalDavEventsResponse = zod.array(GetCalDavEventsResponseItem)
+
+
+/**
+ * @summary Get upcoming Apple Reminders
+ */
+export const GetCalDavRemindersQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetCalDavRemindersResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "dueDate": zod.string().nullable(),
+  "completed": zod.boolean(),
+  "listName": zod.string()
+})
+export const GetCalDavRemindersResponse = zod.array(GetCalDavRemindersResponseItem)
+
+
+/**
+ * @summary Get Aula school data
+ */
+export const GetAulaDataQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetAulaDataResponse = zod.object({
+  "messages": zod.array(zod.object({
+  "id": zod.string(),
+  "subject": zod.string(),
+  "sender": zod.string(),
+  "preview": zod.string(),
+  "receivedAt": zod.string()
+})),
+  "schedule": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "childName": zod.string()
+})),
+  "children": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Save Aula credentials
+ */
+export const ConnectAulaQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const ConnectAulaBody = zod.object({
+  "username": zod.string(),
+  "password": zod.string()
+})
+
+export const ConnectAulaResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Get user's schedule entries
+ */
+export const GetSchedulesQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetSchedulesResponseItem = zod.object({
+  "id": zod.string(),
+  "day_of_week": zod.string(),
+  "start_time": zod.string(),
+  "end_time": zod.string(),
+  "subject": zod.string(),
+  "room": zod.string().nullable()
+})
+export const GetSchedulesResponse = zod.array(GetSchedulesResponseItem)
+
+
+/**
+ * @summary Create a schedule entry
+ */
+export const CreateScheduleEntryQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const CreateScheduleEntryBody = zod.object({
+  "day_of_week": zod.string(),
+  "start_time": zod.string(),
+  "end_time": zod.string(),
+  "subject": zod.string(),
+  "room": zod.string().nullish()
+})
+
+
+/**
+ * @summary Delete a schedule entry
+ */
+export const RemoveScheduleEntryQueryParams = zod.object({
+  "id": zod.coerce.string(),
+  "access_token": zod.coerce.string()
+})
+
+export const RemoveScheduleEntryResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Save Spotify OAuth tokens
+ */
+export const ConnectSpotifyQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const ConnectSpotifyBody = zod.object({
+  "access_token": zod.string(),
+  "refresh_token": zod.string()
+})
+
+export const ConnectSpotifyResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Get AI playlist recommendation for the day
+ */
+export const GetSpotifyRecommendationQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetSpotifyRecommendationResponse = zod.object({
+  "playlists": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "reason": zod.string(),
+  "uri": zod.string()
+})),
+  "context": zod.string()
+})
+
+
+/**
+ * @summary Get chat history for user
+ */
+export const GetChatHistoryQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetChatHistoryResponseItem = zod.object({
+  "id": zod.string(),
+  "role": zod.enum(['user', 'assistant']),
+  "content": zod.string(),
+  "created_at": zod.string()
+})
+export const GetChatHistoryResponse = zod.array(GetChatHistoryResponseItem)
+
+
+/**
+ * @summary Get user settings
+ */
+export const GetSettingsQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const GetSettingsResponse = zod.object({
+  "city_override": zod.string().nullable(),
+  "spotify_connected": zod.boolean(),
+  "caldav_connected": zod.boolean(),
+  "aula_connected": zod.boolean()
+})
+
+
+/**
+ * @summary Update user settings
+ */
+export const UpdateSettingsQueryParams = zod.object({
+  "access_token": zod.coerce.string()
+})
+
+export const UpdateSettingsBody = zod.object({
+  "city_override": zod.string().nullish()
+})
+
+export const UpdateSettingsResponse = zod.object({
+  "city_override": zod.string().nullable(),
+  "spotify_connected": zod.boolean(),
+  "caldav_connected": zod.boolean(),
+  "aula_connected": zod.boolean()
+})
+
+
+/**
+ * @summary Geocode a city name to lat/lon
+ */
+export const GeocodeCityQueryParams = zod.object({
+  "city": zod.coerce.string()
+})
+
+export const GeocodeCityResponse = zod.object({
+  "lat": zod.number(),
+  "lon": zod.number(),
+  "city": zod.string()
+})
 
 
