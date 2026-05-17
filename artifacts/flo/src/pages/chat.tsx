@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGetChatHistory, getGetChatHistoryQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import BottomNav from "@/components/bottom-nav";
+import { FloFace } from "@/components/FloFace";
 
 interface ChatScreenProps {
   accessToken: string;
@@ -156,6 +157,11 @@ export default function ChatScreen({ accessToken, firstName }: ChatScreenProps) 
             key={msg.id}
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
+            {msg.role === "assistant" && (
+              <div className="mr-3 flex-shrink-0 self-start mt-1">
+                <FloFace size={28} />
+              </div>
+            )}
             <div
               className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed ${
                 msg.role === "user"
@@ -173,6 +179,9 @@ export default function ChatScreen({ accessToken, firstName }: ChatScreenProps) 
 
         {streaming && (
           <div className="flex justify-start">
+            <div className="mr-3 flex-shrink-0 self-start mt-1">
+              <FloFace size={28} pulse />
+            </div>
             <div className="max-w-[80%] text-sm leading-relaxed text-foreground/90">
               <span className="text-xs text-muted-foreground tracking-widest uppercase block mb-2">flo.</span>
               {streamingContent || (

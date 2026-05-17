@@ -14,6 +14,7 @@ import {
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import BottomNav from "@/components/bottom-nav";
 import Footer from "@/components/footer";
+import { AppPasswordGuide } from "@/components/AppPasswordGuide";
 
 interface SettingsScreenProps {
   accessToken: string;
@@ -202,6 +203,7 @@ export default function SettingsScreen({ accessToken, firstName, email }: Settin
                 <div className="space-y-2 pl-0">
                   <input placeholder="iCloud email" value={caldavEmail} onChange={(e) => setCaldavEmail(e.target.value)} className={inputClass} />
                   <input placeholder="app-specific password" type="password" value={caldavPassword} onChange={(e) => setCaldavPassword(e.target.value)} className={inputClass} />
+                  <AppPasswordGuide />
                   <button
                     onClick={handleCalDavConnect}
                     disabled={caldavStatus === "saving"}
