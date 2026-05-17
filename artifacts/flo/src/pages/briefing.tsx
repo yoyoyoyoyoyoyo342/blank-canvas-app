@@ -27,6 +27,8 @@ import {
 } from "@workspace/api-client-react";
 import BottomNav from "@/components/bottom-nav";
 import Footer from "@/components/footer";
+import { FloFace } from "@/components/FloFace";
+import { useWeather } from "@/hooks/use-weather";
 
 interface BriefingScreenProps {
   firstName: string;
@@ -37,6 +39,7 @@ const todayName = format(new Date(), "EEEE");
 
 export default function BriefingScreen({ firstName, accessToken }: BriefingScreenProps) {
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const { weather: liveWeather } = useWeather();
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -142,9 +145,17 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
     <div className="min-h-[100dvh] w-full bg-background text-foreground font-sans px-6 py-12 md:px-12 md:py-24 max-w-3xl mx-auto flex flex-col space-y-16 pb-32">
 
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-150 fill-mode-both">
-        <h1 className="text-4xl md:text-5xl font-light italic tracking-tight text-primary">
-          good morning, {firstName.toLowerCase()}.
-        </h1>
+        <div className="flex items-center gap-4">
+          <FloFace size={56} float />
+          <h1 className="text-4xl md:text-5xl font-light italic tracking-tight text-primary">
+            good morning, {firstName.toLowerCase()}.
+          </h1>
+        </div>
+        {liveWeather && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            {liveWeather.temperature}° · {liveWeather.condition.toLowerCase()} in {liveWeather.city.toLowerCase()}.
+          </p>
+        )}
         <p className="mt-4 text-muted-foreground text-sm tracking-wide">
           {format(today, "EEEE, MMMM do, yyyy").toLowerCase()}
         </p>
@@ -157,6 +168,10 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
         ) : weather ? (
           <p className="text-lg tracking-wide text-foreground">
             {weather.temperature}° — {weather.condition.toLowerCase()} in {weather.city.toLowerCase()}.
+          </p>
+        ) : liveWeather ? (
+          <p className="text-lg tracking-wide text-foreground">
+            {liveWeather.temperature}° — {liveWeather.condition.toLowerCase()} in {liveWeather.city.toLowerCase()}.
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">weather unavailable.</p>
