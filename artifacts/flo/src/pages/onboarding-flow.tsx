@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { FloFace } from "@/components/FloFace";
@@ -12,7 +12,7 @@ const FONT = { fontFamily: "Fraunces, serif", fontWeight: 200 } as const;
 
 interface Props { userId: string }
 
-function Page({ children, page, bg }: { children: React.ReactNode; page: number; bg?: string }) {
+function Page({ children, page, bg }: { children: ReactNode; page: number; bg?: string }) {
   return (
     <section
       data-page={page}
@@ -167,7 +167,7 @@ function PageWhatIs() {
   );
 }
 
-function BriefCard({ accent, title, delay, inView, children }: { accent: string; title: string; delay: number; inView: boolean; children: React.ReactNode }) {
+function BriefCard({ accent, title, delay, inView, children }: { accent: string; title: string; delay: number; inView: boolean; children: ReactNode }) {
   return (
     <motion.div
       initial={{ x: 60, opacity: 0 }}
@@ -218,7 +218,7 @@ function PageBriefing() {
   );
 }
 
-function ChatBubble({ side, delay, inView, children }: { side: "left" | "right"; delay: number; inView: boolean; children: React.ReactNode }) {
+function ChatBubble({ side, delay, inView, children }: { side: "left" | "right"; delay: number; inView: boolean; children: ReactNode }) {
   const isUser = side === "right";
   return (
     <motion.div

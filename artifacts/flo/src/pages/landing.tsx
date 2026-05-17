@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, useInView } from "framer-motion";
 import { FloFace } from "@/components/FloFace";
@@ -11,7 +11,7 @@ const MUTED = "#6a6a6a";
 const CARD = "#1a1a1a";
 const FONT = { fontFamily: "Fraunces, serif", fontWeight: 200 } as const;
 
-function Section({ children, id }: { children: React.ReactNode; id?: string }) {
+function Section({ children, id }: { children: ReactNode; id?: string }) {
   return (
     <section id={id} className="w-full px-6 md:px-12 py-24 md:py-32 max-w-6xl mx-auto">
       {children}
@@ -19,7 +19,7 @@ function Section({ children, id }: { children: React.ReactNode; id?: string }) {
   );
 }
 
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
   return (
@@ -51,7 +51,7 @@ function IconLock() {
   );
 }
 
-function MockCard({ accent, title, children, delay }: { accent: string; title: string; children: React.ReactNode; delay: number }) {
+function MockCard({ accent, title, children, delay }: { accent: string; title: string; children: ReactNode; delay: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}
