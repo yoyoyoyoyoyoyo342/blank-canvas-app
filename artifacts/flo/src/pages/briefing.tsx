@@ -114,9 +114,9 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
   );
 
   const allEvents = [
-    ...(googleEvents ?? []),
-    ...(appleEvents ?? []),
-    ...(aulaData?.schedule ?? []).map((e) => ({
+    ...(Array.isArray(googleEvents) ? googleEvents : []),
+    ...(Array.isArray(appleEvents) ? appleEvents : []),
+    ...(Array.isArray(aulaData?.schedule) ? aulaData!.schedule : []).map((e) => ({
       id: e.id,
       title: `${e.title} (${e.childName})`,
       startTime: e.startTime,
@@ -131,7 +131,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
 
-  const todaySchedule = (schedules ?? []).filter(
+  const todaySchedule = (Array.isArray(schedules) ? schedules : []).filter(
     (s) => s.day_of_week.toLowerCase() === todayName.toLowerCase()
   );
 
@@ -196,7 +196,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       {/* Calendar Events */}
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700 fill-mode-both space-y-6">
         <h2 className="text-sm text-muted-foreground tracking-widest uppercase">today's rhythm</h2>
-        {allEvents.length > 0 ? (
+          {allEvents.length > 0 ? (
           <ul className="space-y-4">
             {allEvents.map((event) => (
               <li key={event.id} className="flex gap-4 items-baseline">
@@ -241,7 +241,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-800 fill-mode-both space-y-6">
           <h2 className="text-sm text-muted-foreground tracking-widest uppercase">reminders</h2>
           <ul className="space-y-3">
-            {(reminders ?? []).slice(0, 5).map((r) => (
+            {(Array.isArray(reminders) ? reminders : []).slice(0, 5).map((r) => (
               <li key={r.id} className="flex gap-4 items-baseline">
                 <span className="text-muted-foreground text-sm w-20 flex-shrink-0">
                   {r.dueDate ? format(new Date(r.dueDate), "HH:mm") : "any time"}
