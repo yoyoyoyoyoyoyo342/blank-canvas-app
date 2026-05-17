@@ -31,7 +31,7 @@ export default function ChatScreen({ accessToken, firstName }: ChatScreenProps) 
   );
 
   useEffect(() => {
-    if (history) {
+    if (Array.isArray(history)) {
       setLocalMessages(
         history.map((m) => ({
           id: m.id,
