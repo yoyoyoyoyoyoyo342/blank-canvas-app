@@ -93,7 +93,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => setHasSession(!!data.session));
+    supabase.auth.getSession().then(({ data }: { data: { session: unknown } }) => setHasSession(!!data.session));
   }, []);
 
   async function googleSignIn() {
