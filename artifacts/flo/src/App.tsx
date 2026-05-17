@@ -58,36 +58,29 @@ function AuthRedirector({ userId }: { userId: string }) {
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!document.documentElement.classList.contains("dark")) {
       document.documentElement.classList.add("dark");
     }
 
-    const timeout = setTimeout(() => {
-      setLoading(false);
-      setSession(null);
-      if (window.location.pathname !== "/") {
-        window.history.replaceState(null, "", "/");
-        window.dispatchEvent(new PopStateEvent("popstate"));
-      }
-    }, 3000);
-
     if (!isSupabaseConfigured) {
-      clearTimeout(timeout);
       setLoading(false);
       return;
     }
 
     supabase.auth.getSession().then(
       ({ data }: { data: { session: Session | null } }) => {
-        clearTimeout(timeout);
         setSession(data.session);
         setLoading(false);
       },
       () => {
-        clearTimeout(timeout);
         setSession(null);
         setLoading(false);
         if (window.location.pathname !== "/") {
@@ -98,24 +91,14 @@ function App() {
     );
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      clearTimeout(timeout);
       setSession(session);
       setLoading(false);
     });
 
     return () => {
-      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center" style={{ background: "#0f0f0f" }}>
-        <div className="h-8 w-8 rounded-full border border-muted border-t-foreground animate-spin" />
-      </div>
-    );
-  }
 
   if (!isSupabaseConfigured) {
     return (
@@ -168,6 +151,11 @@ function App() {
             <Route component={NotFound} />
           </Switch>
         </WouterRouter>
+        {loading && (
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/20">
+            <div className="h-8 w-8 rounded-full border border-muted border-t-foreground animate-spin" />
+          </div>
+        )}
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
