@@ -25,14 +25,33 @@ function AuthRedirector({ userId }: { userId: string }) {
   useEffect(() => {
     if (!supabase || !userId) return;
     if (location !== "/auth") return;
+    let done = false;
+    const finish = (path: string) => {
+      if (done) return;
+      done = true;
+      navigate(path);
+    };
+    const timeout = setTimeout(() => finish("/briefing"), 5000);
     supabase
       .from("user_settings")
       .select("onboarding_complete")
       .eq("user_id", userId)
       .maybeSingle()
-      .then(({ data }: { data: { onboarding_complete: boolean } | null }) => {
-        navigate(data?.onboarding_complete ? "/briefing" : "/onboarding");
-      });
+      .then(
+        ({ data, error }: { data: { onboarding_complete: boolean } | null; error: unknown }) => {
+          clearTimeout(timeout);
+          if (error) {
+            finish("/briefing");
+            return;
+          }
+          finish(data?.onboarding_complete ? "/briefing" : "/onboarding");
+        },
+        () => {
+          clearTimeout(timeout);
+          finish("/briefing");
+        }
+      );
+    return () => clearTimeout(timeout);
   }, [userId, location, navigate]);
   return null;
 }
