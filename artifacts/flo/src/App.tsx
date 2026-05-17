@@ -13,6 +13,9 @@ import PrivacyPage from "@/pages/privacy";
 import CookiesPage from "@/pages/cookies";
 import TermsPage from "@/pages/terms";
 import NotFound from "@/pages/not-found";
+import PlusScreen from "@/pages/plus";
+import AdminScreen from "@/pages/admin";
+import { Onboarding } from "@/components/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -62,15 +65,23 @@ function App() {
   const accessToken = session?.provider_token ?? session?.access_token ?? "";
   const firstName = session?.user.user_metadata.full_name?.split(" ")[0] ?? session?.user.email?.split("@")[0] ?? "there";
   const email = session?.user.email ?? "";
+  const userId = session?.user.id ?? "";
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          {session && userId && <Onboarding userId={userId} firstName={firstName} />}
           <Switch>
             <Route path="/privacy" component={PrivacyPage} />
             <Route path="/cookies" component={CookiesPage} />
             <Route path="/terms" component={TermsPage} />
+            <Route path="/plus">
+              {session ? <PlusScreen accessToken={accessToken} /> : <AuthScreen />}
+            </Route>
+            <Route path="/admin">
+              {session ? <AdminScreen email={email} /> : <AuthScreen />}
+            </Route>
             <Route path="/">
               {session ? <BriefingScreen firstName={firstName} accessToken={accessToken} /> : <AuthScreen />}
             </Route>
