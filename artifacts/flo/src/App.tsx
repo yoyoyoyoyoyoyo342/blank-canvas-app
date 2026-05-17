@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,9 +15,27 @@ import TermsPage from "@/pages/terms";
 import NotFound from "@/pages/not-found";
 import PlusScreen from "@/pages/plus";
 import AdminScreen from "@/pages/admin";
-import { Onboarding } from "@/components/Onboarding";
+import LandingPage from "@/pages/landing";
+import OnboardingFlow from "@/pages/onboarding-flow";
 
 const queryClient = new QueryClient();
+
+function AuthRedirector({ userId }: { userId: string }) {
+  const [location, navigate] = useLocation();
+  useEffect(() => {
+    if (!supabase || !userId) return;
+    if (location !== "/auth") return;
+    supabase
+      .from("user_settings")
+      .select("onboarding_complete")
+      .eq("user_id", userId)
+      .maybeSingle()
+      .then(({ data }: { data: { onboarding_complete: boolean } | null }) => {
+        navigate(data?.onboarding_complete ? "/briefing" : "/onboarding");
+      });
+  }, [userId, location, navigate]);
+  return null;
+}
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -71,7 +89,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          {session && userId && <Onboarding userId={userId} firstName={firstName} />}
+          {session && userId && <AuthRedirector userId={userId} />}
           <Switch>
             <Route path="/privacy" component={PrivacyPage} />
             <Route path="/cookies" component={CookiesPage} />
@@ -82,8 +100,12 @@ function App() {
             <Route path="/admin">
               {session ? <AdminScreen email={email} /> : <AuthScreen />}
             </Route>
-            <Route path="/">
+            <Route path="/" component={LandingPage} />
+            <Route path="/briefing">
               {session ? <BriefingScreen firstName={firstName} accessToken={accessToken} /> : <AuthScreen />}
+            </Route>
+            <Route path="/onboarding">
+              {session && userId ? <OnboardingFlow userId={userId} /> : <AuthScreen />}
             </Route>
             <Route path="/chat">
               {session ? <ChatScreen accessToken={accessToken} firstName={firstName} /> : <AuthScreen />}
