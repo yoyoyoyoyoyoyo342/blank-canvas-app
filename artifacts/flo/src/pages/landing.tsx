@@ -100,7 +100,10 @@ export default function LandingPage() {
     if (!supabase) return;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { scopes: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly" },
+      options: {
+        scopes: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
+        redirectTo: `${window.location.origin}/auth`,
+      },
     });
   }
 
