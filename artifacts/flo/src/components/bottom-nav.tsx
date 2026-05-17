@@ -10,7 +10,7 @@ export default function BottomNav({ accessToken }: BottomNavProps) {
   const items = [
     {
       label: "briefing",
-      path: "/",
+      path: "/briefing",
       icon: (active: boolean) => (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 1.5 : 1} strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" />
