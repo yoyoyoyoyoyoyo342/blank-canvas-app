@@ -7,12 +7,18 @@ export default function AuthScreen() {
 
   const handleLogin = async () => {
     setLoading(true);
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        scopes: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
-      },
-    });
+    const timeout = setTimeout(() => setLoading(false), 3000);
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          scopes: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
+        },
+      });
+    } finally {
+      clearTimeout(timeout);
+      setLoading(false);
+    }
   };
 
   return (
