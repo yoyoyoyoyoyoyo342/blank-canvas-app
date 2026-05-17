@@ -6,12 +6,14 @@ export type Plan = "free" | "plus";
 export function usePlan(userId: string | undefined) {
   const [plan, setPlan] = useState<Plan>("free");
   const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (!userId || !supabase) { setLoading(false); return; }
+    setChecked(false);
+    if (!userId || !supabase) { setLoading(false); setChecked(true); return; }
     let active = true;
     const timeout = setTimeout(() => {
-      if (active) setLoading(false);
+      if (active) { setLoading(false); setChecked(true); }
     }, 3000);
     (async () => {
       try {
@@ -23,24 +25,26 @@ export function usePlan(userId: string | undefined) {
         if (active) setPlan((data?.plan as Plan) ?? "free");
       } finally {
         clearTimeout(timeout);
-        if (active) setLoading(false);
+        if (active) { setLoading(false); setChecked(true); }
       }
     })();
     return () => { active = false; clearTimeout(timeout); };
   }, [userId]);
 
-  return { plan, isPlus: plan === "plus", loading };
+  return { plan, isPlus: plan === "plus", loading: loading || !checked };
 }
 
 export function useIsAdmin(email: string | undefined) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (!email || !supabase) { setLoading(false); return; }
+    setChecked(false);
+    if (!email || !supabase) { setLoading(false); setChecked(true); return; }
     let active = true;
     const timeout = setTimeout(() => {
-      if (active) setLoading(false);
+      if (active) { setLoading(false); setChecked(true); }
     }, 3000);
     (async () => {
       try {
@@ -52,11 +56,11 @@ export function useIsAdmin(email: string | undefined) {
         if (active) setIsAdmin(!!data);
       } finally {
         clearTimeout(timeout);
-        if (active) setLoading(false);
+        if (active) { setLoading(false); setChecked(true); }
       }
     })();
     return () => { active = false; clearTimeout(timeout); };
   }, [email]);
 
-  return { isAdmin, loading };
+  return { isAdmin, loading: loading || !checked };
 }
