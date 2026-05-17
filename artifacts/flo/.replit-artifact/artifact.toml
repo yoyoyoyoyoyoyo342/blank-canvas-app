@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "flo."
+version = "1.0.0"
+id = "artifacts/flo"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 5173
+
+[services.development]
+run = "/home/runner/workspace/artifacts/flo/dev.sh"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/flo", "run", "build" ]
+publicDir = "artifacts/flo/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "5173"
+BASE_PATH = "/"

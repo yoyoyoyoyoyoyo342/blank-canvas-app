@@ -1,0 +1,900 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: flo. API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: briefings
+    description: Daily briefing operations
+  - name: weather
+    description: Weather data
+  - name: calendar
+    description: Google Calendar events
+  - name: gmail
+    description: Gmail summaries
+  - name: caldav
+    description: Apple CalDAV integration
+  - name: aula
+    description: Aula school integration
+  - name: schedules
+    description: Student schedule management
+  - name: spotify
+    description: Spotify integration
+  - name: chat
+    description: AI chat
+  - name: settings
+    description: User settings
+  - name: geocode
+    description: City geocoding
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /briefings/today:
+    get:
+      operationId: getTodayBriefing
+      tags: [briefings]
+      summary: Get or generate today's briefing
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Today's briefing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Briefing"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /weather:
+    get:
+      operationId: getWeather
+      tags: [weather]
+      summary: Get current weather
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Current weather data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Weather"
+        "500":
+          description: Weather fetch error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /calendar/today:
+    get:
+      operationId: getTodayEvents
+      tags: [calendar]
+      summary: Get today's calendar events
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Today's calendar events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /gmail/summaries:
+    get:
+      operationId: getGmailSummaries
+      tags: [gmail]
+      summary: Get top 3 summarised emails
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Email summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmailSummary"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /caldav/connect:
+    post:
+      operationId: connectCalDav
+      tags: [caldav]
+      summary: Save iCloud credentials for CalDAV
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalDavCredentials"
+      responses:
+        "200":
+          description: Connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /caldav/events:
+    get:
+      operationId: getCalDavEvents
+      tags: [caldav]
+      summary: Get today's Apple Calendar events
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CalDAV events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /caldav/reminders:
+    get:
+      operationId: getCalDavReminders
+      tags: [caldav]
+      summary: Get upcoming Apple Reminders
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /aula/data:
+    get:
+      operationId: getAulaData
+      tags: [aula]
+      summary: Get Aula school data
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Aula data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AulaData"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /aula/connect:
+    post:
+      operationId: connectAula
+      tags: [aula]
+      summary: Save Aula credentials
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AulaCredentials"
+      responses:
+        "200":
+          description: Connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /schedules:
+    get:
+      operationId: getSchedules
+      tags: [schedules]
+      summary: Get user's schedule entries
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Schedule entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleEntry"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: createScheduleEntry
+      tags: [schedules]
+      summary: Create a schedule entry
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleEntryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleEntry"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /schedules/delete:
+    delete:
+      operationId: removeScheduleEntry
+      tags: [schedules]
+      summary: Delete a schedule entry
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /spotify/connect:
+    post:
+      operationId: connectSpotify
+      tags: [spotify]
+      summary: Save Spotify OAuth tokens
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpotifyTokens"
+      responses:
+        "200":
+          description: Connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /spotify/recommend:
+    get:
+      operationId: getSpotifyRecommendation
+      tags: [spotify]
+      summary: Get AI playlist recommendation for the day
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Playlist recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpotifyRecommendation"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Spotify not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /chat/history:
+    get:
+      operationId: getChatHistory
+      tags: [chat]
+      summary: Get chat history for user
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Chat messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get user settings
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettings"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update user settings
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSettingsInput"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettings"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /geocode:
+    get:
+      operationId: geocodeCity
+      tags: [geocode]
+      summary: Geocode a city name to lat/lon
+      parameters:
+        - name: city
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Geocoded coordinates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeoLocation"
+        "404":
+          description: City not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ConnectResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    Briefing:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        cached:
+          type: boolean
+      required:
+        - id
+        - content
+        - date
+        - cached
+
+    Weather:
+      type: object
+      properties:
+        temperature:
+          type: number
+        condition:
+          type: string
+        city:
+          type: string
+        icon:
+          type: ["string", "null"]
+      required:
+        - temperature
+        - condition
+        - city
+        - icon
+
+    CalendarEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        startTime:
+          type: ["string", "null"]
+        endTime:
+          type: ["string", "null"]
+        allDay:
+          type: boolean
+        location:
+          type: ["string", "null"]
+        source:
+          type: string
+          enum: [google, apple, aula]
+      required:
+        - id
+        - title
+        - startTime
+        - endTime
+        - allDay
+        - location
+        - source
+
+    EmailSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        from:
+          type: string
+        subject:
+          type: string
+        summary:
+          type: string
+        receivedAt:
+          type: string
+      required:
+        - id
+        - from
+        - subject
+        - summary
+        - receivedAt
+
+    CalDavCredentials:
+      type: object
+      properties:
+        icloud_email:
+          type: string
+        app_password:
+          type: string
+      required:
+        - icloud_email
+        - app_password
+
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        dueDate:
+          type: ["string", "null"]
+        completed:
+          type: boolean
+        listName:
+          type: string
+      required:
+        - id
+        - title
+        - dueDate
+        - completed
+        - listName
+
+    AulaCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    AulaMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        subject:
+          type: string
+        sender:
+          type: string
+        preview:
+          type: string
+        receivedAt:
+          type: string
+      required:
+        - id
+        - subject
+        - sender
+        - preview
+        - receivedAt
+
+    AulaScheduleItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        childName:
+          type: string
+      required:
+        - id
+        - title
+        - startTime
+        - endTime
+        - childName
+
+    AulaData:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AulaMessage"
+        schedule:
+          type: array
+          items:
+            $ref: "#/components/schemas/AulaScheduleItem"
+        children:
+          type: array
+          items:
+            type: string
+      required:
+        - messages
+        - schedule
+        - children
+
+    ScheduleEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        day_of_week:
+          type: string
+        start_time:
+          type: string
+        end_time:
+          type: string
+        subject:
+          type: string
+        room:
+          type: ["string", "null"]
+      required:
+        - id
+        - day_of_week
+        - start_time
+        - end_time
+        - subject
+        - room
+
+    ScheduleEntryInput:
+      type: object
+      properties:
+        day_of_week:
+          type: string
+        start_time:
+          type: string
+        end_time:
+          type: string
+        subject:
+          type: string
+        room:
+          type: ["string", "null"]
+      required:
+        - day_of_week
+        - start_time
+        - end_time
+        - subject
+
+    SpotifyTokens:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+      required:
+        - access_token
+        - refresh_token
+
+    SpotifyPlaylistSuggestion:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        reason:
+          type: string
+        uri:
+          type: string
+      required:
+        - id
+        - name
+        - reason
+        - uri
+
+    SpotifyRecommendation:
+      type: object
+      properties:
+        playlists:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpotifyPlaylistSuggestion"
+        context:
+          type: string
+      required:
+        - playlists
+        - context
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        created_at:
+          type: string
+      required:
+        - id
+        - role
+        - content
+        - created_at
+
+    UserSettings:
+      type: object
+      properties:
+        city_override:
+          type: ["string", "null"]
+        spotify_connected:
+          type: boolean
+        caldav_connected:
+          type: boolean
+        aula_connected:
+          type: boolean
+      required:
+        - city_override
+        - spotify_connected
+        - caldav_connected
+        - aula_connected
+
+    UserSettingsInput:
+      type: object
+      properties:
+        city_override:
+          type: ["string", "null"]
+
+    GeoLocation:
+      type: object
+      properties:
+        lat:
+          type: number
+        lon:
+          type: number
+        city:
+          type: string
+      required:
+        - lat
+        - lon
+        - city

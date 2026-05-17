@@ -1,0 +1,213 @@
+This is an existing flo. app built in React + TypeScript + 
+Tailwind + Supabase + Express. Add the following on top of 
+what already exists. Do not break or rewrite anything that 
+already works.
+
+ADD THESE INTEGRATIONS
+
+1. APPLE CALDAV
+- Connect to Apple Calendar and Apple Reminders via CalDAV
+- Endpoint: caldav.icloud.com
+- Auth: iCloud email + app-specific password (user provides 
+  in settings)
+- Fetch today's events from Apple Calendar
+- Fetch upcoming reminders from Apple Reminders
+- Merge with existing Google Calendar events on briefing screen
+- Store iCloud credentials encrypted in Supabase users table
+
+2. AULA INTEGRATION
+- Use the aula-mcp TypeScript library from GitHub 
+  (casperjuel/aula-mcp)
+- Auth: MitID (user logs in via Aula's own login flow)
+- Fetch: today's messages, calendar events, ugeplaner, 
+  and school schedules for child profiles
+- Display as a separate "aula." card on the briefing screen
+- Only show if user has connected Aula in settings
+- Build this as a modular SchoolProvider so other school 
+  apps can slot in later using the same interface:
+  SchoolProvider {
+    auth()
+    getMessages()
+    getCalendar()
+    getChildren()
+    getSchedule()
+  }
+
+3. STUDENT SCHEDULES
+Build a Schedule system with three input methods:
+
+a) PULL FROM SCHOOL APP
+- If user has connected Aula or another school app, 
+  automatically pull their timetable via 
+  SchoolProvider.getSchedule()
+- Display today's classes in the briefing
+
+b) FILE IMPORT
+- User uploads a PDF or CSV of their timetable
+- Send file content to Groq (llama-3.3-70b-versatile) 
+  with prompt: "Extract this school timetable into a 
+  structured JSON format with day, start_time, end_time, 
+  subject, room fields"
+- Save extracted schedule to Supabase table: schedules
+  columns: id, user_id, day_of_week, start_time, 
+  end_time, subject, room, created_at
+- Show today's classes in the daily briefing
+
+c) MANUAL ENTRY
+- Simple form in settings to add classes manually
+- Fields: day of week, start time, end time, 
+  subject, room (optional)
+- Save to same schedules Supabase table
+- User can edit or delete individual classes
+
+4. SPOTIFY INTEGRATION
+- Connect via Spotify OAuth
+- Scopes: user-read-private, user-top-read, 
+  playlist-read-private
+- Fetch user's top 5 artists and top 10 tracks
+- Fetch user's playlists (name + id only)
+- Do NOT use the recommendations endpoint (deprecated)
+- Pass top artists, top tracks, and today's context 
+  (weather, calendar, time of day) to Groq
+- Groq selects 2-3 of the user's own playlists that 
+  fit the day's vibe and explains why in one line
+- Show as a "soundtrack for today" card on the briefing
+- Only show if user has connected Spotify in settings
+- Deep link the playlist directly to Spotify app on tap
+
+5. WEATHER
+- Already using Rainz Weather API from Prompt 1
+- Endpoint: https://rainz.net/api/weather?lat={lat}&lon={lon}
+- Ensure weather uses real device location everywhere
+- If user set a manual city override in settings, 
+  geocode that city name to lat/lon and use those 
+  coordinates instead
+
+ADD THESE SCREENS
+
+6. CHAT SCREEN
+- Bottom nav to switch between Briefing and Chat
+- Chat UI: message bubbles, user right, flo. left
+- flo. has full context of user's day (calendar, weather, 
+  emails, reminders, schedule, Spotify playlists)
+- Powered by Groq API, model llama-3.3-70b-versatile
+- Use openai npm package with 
+  baseURL https://api.groq.com/openai/v1
+- System prompt:
+  "You are flo., a warm calm personal assistant. You know 
+  the user's day including their calendar events, emails, 
+  weather, reminders, school schedule and music. Be 
+  concise, friendly, never robotic."
+- Stream the response token by token so it feels instant
+- Persist chat history in Supabase:
+  table chats: id, user_id, role, content, created_at
+- Input field at bottom, send on enter or button tap
+- Typing indicator while flo. is thinking
+
+7. SETTINGS SCREEN
+- Navigation item reachable from anywhere
+- Sections:
+  a) Connected accounts — Google (connected/disconnect), 
+     Apple CalDAV (connect with iCloud email + app 
+     password), Aula (connect/disconnect), 
+     Spotify (connect/disconnect)
+  b) Schedule — three tabs: From school app / 
+     Upload file / Manual entry
+  c) Location — manual city override for weather
+  d) Account — user name, email, sign out button
+- Clean list style, toggle switches for connections
+- Save to Supabase on change
+
+8. LEGAL PAGES
+Build three standalone pages, all matching flo. brand 
+(#0f0f0f bg, #e8dfd4 text, Fraunces weight 200, 
+minimal, lots of whitespace):
+
+a) PRIVACY POLICY — route: /privacy
+- What data flo. collects (calendar, email, weather, 
+  location, school data, Spotify)
+- How it's stored (Supabase, encrypted where sensitive)
+- What it's used for (generating daily briefing, AI chat)
+- Third party services used: Google, Apple, Aula, 
+  Spotify, Groq, Rainz
+- GDPR compliance section — user rights: access, 
+  deletion, portability
+- Data retention policy
+- Contact email for data requests
+- Last updated date
+
+b) COOKIE POLICY — route: /cookies
+- What cookies flo. uses (session, auth, preferences)
+- No advertising or tracking cookies
+- How to manage or disable cookies
+- Last updated date
+
+c) TERMS & CONDITIONS — route: /terms
+- Acceptance of terms
+- Description of service
+- User responsibilities
+- Free vs Pro tier limitations
+- Intellectual property
+- Limitation of liability
+- Governing law — Denmark, EU
+- How to terminate account
+- Changes to terms
+- Contact details
+- Last updated date
+
+Add footer links to all three pages on:
+- The auth/login screen
+- The settings screen
+- A minimal footer on every page with:
+  "flo. by Locali Labs · privacy · cookies · terms"
+  in small muted text, all linked correctly
+
+REACT NATIVE MOBILE
+- Scaffold a React Native + Expo project sharing the same 
+  Supabase backend
+- Same screens: Briefing, Chat, Settings
+- Same brand: Fraunces font, #0f0f0f background, 
+  #e8dfd4 text, #4a5e6e accent
+- Bottom tab navigation between screens
+- Use expo-location for GPS coordinates, pass to:
+  https://rainz.net/api/weather?lat={lat}&lon={lon}
+- Legal pages accessible from settings screen
+- iOS first — Android support secondary
+- Use Expo Go for testing during development
+
+SUPABASE — NEW TABLES NEEDED
+Run these in Supabase SQL editor before starting:
+
+create table schedules (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) on delete cascade,
+  day_of_week text not null,
+  start_time text not null,
+  end_time text not null,
+  subject text not null,
+  room text,
+  created_at timestamp with time zone default now()
+);
+
+create table spotify_connections (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) on delete cascade,
+  access_token text not null,
+  refresh_token text not null,
+  created_at timestamp with time zone default now()
+);
+
+RULES
+- Do not rewrite existing working code
+- All new code modular, separate files per integration
+- Full TypeScript, no any types
+- All API keys via environment variables
+- Every new screen mobile responsive
+- No comments in code
+- No mock data anywhere
+- The SchoolProvider interface must be in its own file 
+  so future school apps (Wilma Finland, Skolplattformen 
+  Sweden etc.) can be added by just implementing the 
+  same interface
+- Legal pages must be real, detailed, and GDPR compliant 
+  — not placeholder text
