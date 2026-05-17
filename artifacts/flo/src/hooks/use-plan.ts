@@ -5,7 +5,7 @@ export type Plan = "free" | "plus";
 
 export function usePlan(userId: string | undefined) {
   const [plan, setPlan] = useState<Plan>("free");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!userId || !supabase) { setLoading(false); return; }
@@ -34,7 +34,7 @@ export function usePlan(userId: string | undefined) {
 
 export function useIsAdmin(email: string | undefined) {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!email || !supabase) { setLoading(false); return; }
