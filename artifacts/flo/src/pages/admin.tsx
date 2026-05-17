@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/use-plan";
+import { Spinner } from "@/components/ui/spinner";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 interface ProfileRow {
@@ -27,7 +28,13 @@ export default function AdminScreen({ email }: { email: string }) {
     navigate("/");
   }
 
-  if (loading || !isAdmin) return <div style={{ background: "#0f0f0f", minHeight: "100vh" }} />;
+  if (loading || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0f0f0f" }}>
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen px-6 py-6" style={{ background: "#0f0f0f", color: "#e8dfd4", fontFamily: "Fraunces, serif", fontWeight: 200 }}>

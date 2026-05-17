@@ -472,19 +472,25 @@ function PageGetStarted({ onFinish }: { onFinish: () => void }) {
   const [loading, setLoading] = useState(false);
   async function start() {
     setLoading(true);
-    await onFinish();
-    if (!supabase) return;
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      window.location.href = "/briefing";
-    } else {
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          scopes: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
-          redirectTo: `${window.location.origin}/briefing`,
-        },
-      });
+    const timeout = setTimeout(() => setLoading(false), 3000);
+    try {
+      await onFinish();
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        window.location.href = "/briefing";
+      } else {
+        await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            scopes: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly",
+            redirectTo: `${window.location.origin}/briefing`,
+          },
+        });
+      }
+    } finally {
+      clearTimeout(timeout);
+      setLoading(false);
     }
   }
   return (

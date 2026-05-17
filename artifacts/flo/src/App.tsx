@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import AuthScreen from "@/pages/auth";
 import BriefingScreen from "@/pages/briefing";
@@ -31,7 +31,7 @@ function AuthRedirector({ userId }: { userId: string }) {
       done = true;
       navigate(path);
     };
-    const timeout = setTimeout(() => finish("/briefing"), 5000);
+    const timeout = setTimeout(() => finish("/briefing"), 3000);
     supabase
       .from("user_settings")
       .select("onboarding_complete")
@@ -65,26 +65,56 @@ function App() {
       document.documentElement.classList.add("dark");
     }
 
+    const timeout = setTimeout(() => {
+      setLoading(false);
+      setSession(null);
+      if (window.location.pathname !== "/") {
+        window.history.replaceState(null, "", "/");
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      }
+    }, 3000);
+
     if (!isSupabaseConfigured) {
+      clearTimeout(timeout);
       setLoading(false);
       return;
     }
 
-    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    supabase.auth.getSession().then(
+      ({ data }: { data: { session: Session | null } }) => {
+        clearTimeout(timeout);
+        setSession(data.session);
+        setLoading(false);
+      },
+      () => {
+        clearTimeout(timeout);
+        setSession(null);
+        setLoading(false);
+        if (window.location.pathname !== "/") {
+          window.history.replaceState(null, "", "/");
+          window.dispatchEvent(new PopStateEvent("popstate"));
+        }
+      }
+    );
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+      clearTimeout(timeout);
       setSession(session);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen w-full bg-background flex items-center justify-center" />;
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center" style={{ background: "#0f0f0f" }}>
+        <div className="h-8 w-8 rounded-full border border-muted border-t-foreground animate-spin" />
+      </div>
+    );
   }
 
   if (!isSupabaseConfigured) {

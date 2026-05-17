@@ -20,6 +20,7 @@ export default function PlusScreen({ accessToken }: { accessToken: string }) {
   async function startCheckout(plan: "monthly" | "yearly") {
     setLoading(plan);
     setError(null);
+    const timeout = setTimeout(() => setLoading(null), 3000);
     try {
       const { data, error } = await supabase.functions.invoke("stripe-checkout", {
         body: { plan },
@@ -31,6 +32,8 @@ export default function PlusScreen({ accessToken }: { accessToken: string }) {
       window.location.href = url;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "checkout failed");
+    } finally {
+      clearTimeout(timeout);
       setLoading(null);
     }
   }
