@@ -37,7 +37,7 @@ export function Onboarding({ userId, firstName }: { userId: string; firstName: s
       >
         <FloFace size={80} float />
         <p className="text-base leading-relaxed">
-          hi {firstName.toLowerCase()}. i'm flo. i'll help you start every day without the noise. connect your accounts in settings to get started.
+          hi {(firstName ?? "").toLowerCase()}. i'm flo. i'll help you start every day without the noise. connect your accounts in settings to get started.
         </p>
         <button
           type="button"

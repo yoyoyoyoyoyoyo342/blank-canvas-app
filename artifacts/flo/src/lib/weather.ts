@@ -38,9 +38,9 @@ interface RainzResponse {
 }
 
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
-  const res = await fetch(`https://rainz.net/api/weather?lat=${lat}&lon=${lon}`);
+  const res = await fetch(`https://nebcijfipngfaraueqdz.supabase.co/functions/v1/weather?lat=${lat}&lon=${lon}`);
   if (!res.ok) throw new Error(`Rainz API ${res.status}`);
-  const data = (await res.json()) as RainzResponse;
+  const data = ((await res.json()) ?? {}) as RainzResponse;
   const temp =
     data.current?.temperature ??
     data.current?.temp ??
@@ -53,7 +53,7 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
     data.condition ??
     "clear";
   const city = data.location?.name ?? data.location?.city ?? data.city ?? data.name ?? "your area";
-  return { temperature: Math.round(temp), condition: String(condition).toLowerCase(), city: String(city).toLowerCase(), lat, lon };
+  return { temperature: Math.round(temp ?? 0), condition: String(condition ?? "").toLowerCase(), city: String(city ?? "").toLowerCase(), lat, lon };
 }
 
 export async function getWeather(): Promise<WeatherData> {
