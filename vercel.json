@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm run build",
+  "buildCommand": "cd artifacts/flo && pnpm run build",
   "outputDirectory": "artifacts/flo/dist",
   "rewrites": [
     {
