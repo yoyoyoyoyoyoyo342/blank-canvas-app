@@ -10,18 +10,23 @@ export function usePlan(userId: string | undefined) {
   useEffect(() => {
     if (!userId || !supabase) { setLoading(false); return; }
     let active = true;
-    supabase
-      .from("profiles")
-      .select("plan")
-      .eq("user_id", userId)
-      .maybeSingle()
-      .then(({ data }: { data: { plan: string } | null }) => {
-        if (active) {
-          setPlan((data?.plan as Plan) ?? "free");
-          setLoading(false);
-        }
-      });
-    return () => { active = false; };
+    const timeout = setTimeout(() => {
+      if (active) setLoading(false);
+    }, 3000);
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("plan")
+          .eq("user_id", userId)
+          .maybeSingle() as { data: { plan: string } | null };
+        if (active) setPlan((data?.plan as Plan) ?? "free");
+      } finally {
+        clearTimeout(timeout);
+        if (active) setLoading(false);
+      }
+    })();
+    return () => { active = false; clearTimeout(timeout); };
   }, [userId]);
 
   return { plan, isPlus: plan === "plus", loading };
@@ -34,18 +39,23 @@ export function useIsAdmin(email: string | undefined) {
   useEffect(() => {
     if (!email || !supabase) { setLoading(false); return; }
     let active = true;
-    supabase
-      .from("admins")
-      .select("email")
-      .eq("email", email)
-      .maybeSingle()
-      .then(({ data }: { data: { email: string } | null }) => {
-        if (active) {
-          setIsAdmin(!!data);
-          setLoading(false);
-        }
-      });
-    return () => { active = false; };
+    const timeout = setTimeout(() => {
+      if (active) setLoading(false);
+    }, 3000);
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("admins")
+          .select("email")
+          .eq("email", email)
+          .maybeSingle() as { data: { email: string } | null };
+        if (active) setIsAdmin(!!data);
+      } finally {
+        clearTimeout(timeout);
+        if (active) setLoading(false);
+      }
+    })();
+    return () => { active = false; clearTimeout(timeout); };
   }, [email]);
 
   return { isAdmin, loading };
