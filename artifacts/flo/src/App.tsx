@@ -151,6 +151,11 @@ function App() {
             <Route component={NotFound} />
           </Switch>
         </WouterRouter>
+        {loading && (
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/20">
+            <div className="h-8 w-8 rounded-full border border-muted border-t-foreground animate-spin" />
+          </div>
+        )}
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
