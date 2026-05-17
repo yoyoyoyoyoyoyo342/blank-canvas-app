@@ -66,9 +66,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!document.documentElement.classList.contains("dark")) {
-      document.documentElement.classList.add("dark");
-    }
 
     if (!isSupabaseConfigured) {
       setLoading(false);
