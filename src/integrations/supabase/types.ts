@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       aula_connections: {
         Row: {
           created_at: string | null
@@ -104,6 +122,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          last_active_at: string | null
+          plan: string
+          plan_expires_at: string | null
+          stripe_customer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          last_active_at?: string | null
+          plan?: string
+          plan_expires_at?: string | null
+          stripe_customer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          last_active_at?: string | null
+          plan?: string
+          plan_expires_at?: string | null
+          stripe_customer_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           created_at: string | null
@@ -162,18 +213,21 @@ export type Database = {
         Row: {
           city_override: string | null
           created_at: string | null
+          onboarding_complete: boolean | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           city_override?: string | null
           created_at?: string | null
+          onboarding_complete?: boolean | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           city_override?: string | null
           created_at?: string | null
+          onboarding_complete?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
