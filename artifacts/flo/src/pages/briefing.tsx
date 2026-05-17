@@ -132,7 +132,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
   });
 
   const todaySchedule = (Array.isArray(schedules) ? schedules : []).filter(
-    (s) => s.day_of_week.toLowerCase() === todayName.toLowerCase()
+    (s) => (s?.day_of_week ?? "").toLowerCase() === todayName.toLowerCase()
   );
 
   const today = new Date();
@@ -148,12 +148,12 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
         <div className="flex items-center gap-4">
           <FloFace size={56} float />
           <h1 className="text-4xl md:text-5xl font-light italic tracking-tight text-primary">
-            good morning, {firstName.toLowerCase()}.
+            good morning, {(firstName ?? "").toLowerCase()}.
           </h1>
         </div>
         {liveWeather && (
           <p className="mt-2 text-sm text-muted-foreground">
-            {liveWeather.temperature}° · {liveWeather.condition.toLowerCase()} in {liveWeather.city.toLowerCase()}.
+            {liveWeather.temperature}° · {(liveWeather.condition ?? "").toLowerCase()} in {(liveWeather.city ?? "").toLowerCase()}.
           </p>
         )}
         <p className="mt-4 text-muted-foreground text-sm tracking-wide">
@@ -167,11 +167,11 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
           <div className="h-6 w-32 bg-muted/20 animate-pulse rounded" />
         ) : weather ? (
           <p className="text-lg tracking-wide text-foreground">
-            {weather.temperature}° — {weather.condition.toLowerCase()} in {weather.city.toLowerCase()}.
+            {weather.temperature}° — {(weather.condition ?? "").toLowerCase()} in {(weather.city ?? "").toLowerCase()}.
           </p>
         ) : liveWeather ? (
           <p className="text-lg tracking-wide text-foreground">
-            {liveWeather.temperature}° — {liveWeather.condition.toLowerCase()} in {liveWeather.city.toLowerCase()}.
+            {liveWeather.temperature}° — {(liveWeather.condition ?? "").toLowerCase()} in {(liveWeather.city ?? "").toLowerCase()}.
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">weather unavailable.</p>
@@ -188,7 +188,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
           </div>
         ) : briefing ? (
           <p className="text-xl md:text-2xl leading-relaxed font-light text-foreground/90">
-            {briefing.content.toLowerCase()}
+            {(briefing?.content ?? "").toLowerCase()}
           </p>
         ) : null}
       </div>
@@ -204,7 +204,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
                   {event.allDay ? "all day" : event.startTime ? format(new Date(event.startTime), "HH:mm") : ""}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <span className="text-foreground text-base">{event.title.toLowerCase()}</span>
+                  <span className="text-foreground text-base">{(event?.title ?? "").toLowerCase()}</span>
                   {"source" in event && event.source === "apple" && (
                     <span className="ml-2 text-xs text-muted-foreground/50">apple</span>
                   )}
@@ -228,7 +228,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
             {todaySchedule.map((entry) => (
               <li key={entry.id} className="flex gap-4 items-baseline">
                 <span className="text-muted-foreground text-sm w-20 flex-shrink-0">{entry.start_time}</span>
-                <span className="text-foreground text-base">{entry.subject.toLowerCase()}</span>
+                <span className="text-foreground text-base">{(entry?.subject ?? "").toLowerCase()}</span>
                 {entry.room && <span className="text-muted-foreground text-sm">{entry.room}</span>}
               </li>
             ))}
@@ -246,7 +246,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
                 <span className="text-muted-foreground text-sm w-20 flex-shrink-0">
                   {r.dueDate ? format(new Date(r.dueDate), "HH:mm") : "any time"}
                 </span>
-                <span className="text-foreground text-sm">{r.title.toLowerCase()}</span>
+                <span className="text-foreground text-sm">{(r?.title ?? "").toLowerCase()}</span>
               </li>
             ))}
           </ul>
@@ -261,11 +261,11 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
             {(Array.isArray(aulaData?.messages) ? aulaData!.messages : []).slice(0, 3).map((msg) => (
               <li key={msg.id} className="space-y-1">
                 <p className="text-sm text-foreground">
-                  <span className="text-muted-foreground">{msg.sender.toLowerCase()}: </span>
-                  {msg.subject.toLowerCase()}
+                  <span className="text-muted-foreground">{(msg?.sender ?? "").toLowerCase()}: </span>
+                  {(msg?.subject ?? "").toLowerCase()}
                 </p>
                 {msg.preview && (
-                  <p className="text-xs text-muted-foreground leading-relaxed">{msg.preview.toLowerCase()}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{(msg?.preview ?? "").toLowerCase()}</p>
                 )}
               </li>
             ))}
@@ -286,10 +286,10 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
             {(Array.isArray(emails) ? emails : []).map((email) => (
               <li key={email.id} className="space-y-1">
                 <p className="text-sm text-foreground">
-                  <span className="text-muted-foreground">{email.from.toLowerCase()}: </span>
-                  {email.subject.toLowerCase()}
+                  <span className="text-muted-foreground">{(email?.from ?? "").toLowerCase()}: </span>
+                  {(email?.subject ?? "").toLowerCase()}
                 </p>
-                <p className="text-sm text-accent leading-relaxed">{email.summary.toLowerCase()}</p>
+                <p className="text-sm text-accent leading-relaxed">{(email?.summary ?? "").toLowerCase()}</p>
               </li>
             ))}
           </ul>
@@ -303,21 +303,21 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-1000 fill-mode-both space-y-6">
           <h2 className="text-sm text-muted-foreground tracking-widest uppercase">soundtrack for today</h2>
           {spotify.context && (
-            <p className="text-sm text-muted-foreground italic">{spotify.context.toLowerCase()}</p>
+            <p className="text-sm text-muted-foreground italic">{(spotify?.context ?? "").toLowerCase()}</p>
           )}
           <ul className="space-y-4">
             {(Array.isArray(spotify.playlists) ? spotify.playlists : []).map((pl) => (
               <li key={pl.id}>
                 <a
-                  href={pl.uri.startsWith("spotify:") ? `https://open.spotify.com/playlist/${pl.id}` : pl.uri}
+                  href={(pl?.uri ?? "").startsWith("spotify:") ? `https://open.spotify.com/playlist/${pl.id}` : (pl?.uri ?? "#")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-baseline gap-3"
                 >
-                  <span className="text-foreground text-sm group-hover:text-accent transition-colors">{pl.name.toLowerCase()}</span>
+                  <span className="text-foreground text-sm group-hover:text-accent transition-colors">{(pl?.name ?? "").toLowerCase()}</span>
                   <span className="text-muted-foreground text-xs">↗</span>
                 </a>
-                <p className="text-xs text-muted-foreground mt-1">{pl.reason.toLowerCase()}</p>
+                <p className="text-xs text-muted-foreground mt-1">{(pl?.reason ?? "").toLowerCase()}</p>
               </li>
             ))}
           </ul>
