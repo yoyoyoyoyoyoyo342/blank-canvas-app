@@ -300,9 +300,9 @@ export default function SettingsScreen({ accessToken, firstName, email }: Settin
 
           {scheduleTab === "manual" && (
             <div className="space-y-6">
-              {(schedules ?? []).length > 0 && (
+              {(Array.isArray(schedules) ? schedules : []).length > 0 && (
                 <ul className="space-y-3">
-                  {(schedules ?? []).map((entry) => (
+                  {(Array.isArray(schedules) ? schedules : []).map((entry) => (
                     <li key={entry.id} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground w-24 text-xs">{entry.day_of_week.slice(0, 3).toLowerCase()}</span>
                       <span className="text-muted-foreground text-xs w-24">{entry.start_time}–{entry.end_time}</span>
