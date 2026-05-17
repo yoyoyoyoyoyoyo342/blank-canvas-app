@@ -237,7 +237,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       )}
 
       {/* Apple Reminders */}
-      {(reminders ?? []).length > 0 && (
+      {(Array.isArray(reminders) ? reminders : []).length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-800 fill-mode-both space-y-6">
           <h2 className="text-sm text-muted-foreground tracking-widest uppercase">reminders</h2>
           <ul className="space-y-3">
@@ -254,11 +254,11 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       )}
 
       {/* Aula Messages */}
-      {settings?.aula_connected && (aulaData?.messages ?? []).length > 0 && (
+      {settings?.aula_connected && (Array.isArray(aulaData?.messages) ? aulaData!.messages : []).length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-900 fill-mode-both space-y-6">
           <h2 className="text-sm text-muted-foreground tracking-widest uppercase">aula.</h2>
           <ul className="space-y-5">
-            {(aulaData?.messages ?? []).slice(0, 3).map((msg) => (
+            {(Array.isArray(aulaData?.messages) ? aulaData!.messages : []).slice(0, 3).map((msg) => (
               <li key={msg.id} className="space-y-1">
                 <p className="text-sm text-foreground">
                   <span className="text-muted-foreground">{msg.sender.toLowerCase()}: </span>
@@ -281,9 +281,9 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
             <div className="h-4 w-full bg-muted/20 animate-pulse rounded" />
             <div className="h-4 w-4/5 bg-muted/20 animate-pulse rounded" />
           </div>
-        ) : (emails ?? []).length > 0 ? (
+        ) : (Array.isArray(emails) ? emails : []).length > 0 ? (
           <ul className="space-y-6">
-            {(emails ?? []).map((email) => (
+            {(Array.isArray(emails) ? emails : []).map((email) => (
               <li key={email.id} className="space-y-1">
                 <p className="text-sm text-foreground">
                   <span className="text-muted-foreground">{email.from.toLowerCase()}: </span>
@@ -299,14 +299,14 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       </div>
 
       {/* Spotify */}
-      {settings?.spotify_connected && spotify && (spotify.playlists ?? []).length > 0 && (
+      {settings?.spotify_connected && spotify && (Array.isArray(spotify.playlists) ? spotify.playlists : []).length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-1000 fill-mode-both space-y-6">
           <h2 className="text-sm text-muted-foreground tracking-widest uppercase">soundtrack for today</h2>
           {spotify.context && (
             <p className="text-sm text-muted-foreground italic">{spotify.context.toLowerCase()}</p>
           )}
           <ul className="space-y-4">
-            {(spotify.playlists ?? []).map((pl) => (
+            {(Array.isArray(spotify.playlists) ? spotify.playlists : []).map((pl) => (
               <li key={pl.id}>
                 <a
                   href={pl.uri.startsWith("spotify:") ? `https://open.spotify.com/playlist/${pl.id}` : pl.uri}
