@@ -26,6 +26,7 @@ import {
   getGeocodeCityQueryKey,
 } from "@workspace/api-client-react";
 import BottomNav from "@/components/bottom-nav";
+import DesktopNav from "@/components/desktop-nav";
 import Footer from "@/components/footer";
 import { FloFace } from "@/components/FloFace";
 import { useWeather } from "@/hooks/use-weather";
@@ -142,12 +143,13 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-background text-foreground font-sans px-6 py-12 md:px-12 md:py-24 max-w-3xl mx-auto flex flex-col space-y-16 pb-32">
+    <div className="min-h-[100dvh] w-full bg-background text-foreground font-sans px-4 sm:px-6 md:pl-72 md:pr-12 py-12 md:py-16 max-w-3xl md:max-w-6xl mx-auto md:mx-0 flex flex-col space-y-12 pb-32">
+      <DesktopNav accessToken={accessToken} />
 
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-150 fill-mode-both">
         <div className="flex items-center gap-4">
           <FloFace size={56} float />
-          <h1 className="text-4xl md:text-5xl font-light italic tracking-tight text-primary">
+          <h1 className="font-light italic tracking-tight text-primary" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
             good morning, {(firstName ?? "").toLowerCase()}.
           </h1>
         </div>
@@ -161,8 +163,13 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
         </p>
       </div>
 
+      <div className="grid md:grid-cols-2 gap-6">
       {/* Weather */}
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-300 fill-mode-both">
+      <div
+        className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-300 fill-mode-both p-5 rounded-2xl"
+        style={{ background: "linear-gradient(135deg, #0f1a2a, #0f2a1a)", borderLeft: "3px solid #7eb8c9" }}
+      >
+        <h2 className="text-xs tracking-widest uppercase mb-3" style={{ color: "#7eb8c9" }}>weather</h2>
         {weatherLoading ? (
           <div className="h-6 w-32 bg-muted/20 animate-pulse rounded" />
         ) : weather ? (
@@ -179,7 +186,10 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       </div>
 
       {/* Briefing */}
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-500 fill-mode-both space-y-4">
+      <div
+        className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-500 fill-mode-both space-y-4 p-5 rounded-2xl md:col-span-2"
+        style={{ background: "linear-gradient(135deg, #141414, #1a1a1a)", borderLeft: "3px solid #c4906b" }}
+      >
         {briefingLoading ? (
           <div className="space-y-2">
             <div className="h-4 w-full bg-muted/20 animate-pulse rounded" />
@@ -194,13 +204,17 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       </div>
 
       {/* Calendar Events */}
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700 fill-mode-both space-y-6">
-        <h2 className="text-sm text-muted-foreground tracking-widest uppercase">today's rhythm</h2>
+      <div
+        className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700 fill-mode-both space-y-6 p-5 rounded-2xl"
+        style={{ background: "linear-gradient(135deg, #1a0f1a, #1a1a2a)", borderLeft: "3px solid #4a5e6e" }}
+      >
+        <h2 className="text-xs tracking-widest uppercase" style={{ color: "#4a5e6e" }}>today's rhythm</h2>
           {allEvents.length > 0 ? (
           <ul className="space-y-4">
             {allEvents.map((event) => (
               <li key={event.id} className="flex gap-4 items-baseline">
-                <span className="text-muted-foreground text-sm w-20 flex-shrink-0">
+                <span className="text-sm w-20 flex-shrink-0 inline-flex items-center gap-2" style={{ color: "#8a8a8a" }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#4a5e6e" }} />
                   {event.allDay ? "all day" : event.startTime ? format(new Date(event.startTime), "HH:mm") : ""}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -222,13 +236,16 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
 
       {/* Today's Schedule (from manual/imported) */}
       {todaySchedule.length > 0 && (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700 fill-mode-both space-y-6">
-          <h2 className="text-sm text-muted-foreground tracking-widest uppercase">classes today</h2>
+        <div
+          className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700 fill-mode-both space-y-6 p-5 rounded-2xl"
+          style={{ background: "linear-gradient(135deg, #0f1a10, #0f1f10)", borderLeft: "3px solid #7a9e7e" }}
+        >
+          <h2 className="text-xs tracking-widest uppercase" style={{ color: "#7a9e7e" }}>classes today</h2>
           <ul className="space-y-4">
             {todaySchedule.map((entry) => (
               <li key={entry.id} className="flex gap-4 items-baseline">
                 <span className="text-muted-foreground text-sm w-20 flex-shrink-0">{entry.start_time}</span>
-                <span className="text-foreground text-base">{(entry?.subject ?? "").toLowerCase()}</span>
+                <span className="text-base" style={{ color: "#7a9e7e" }}>{(entry?.subject ?? "").toLowerCase()}</span>
                 {entry.room && <span className="text-muted-foreground text-sm">{entry.room}</span>}
               </li>
             ))}
@@ -238,8 +255,11 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
 
       {/* Apple Reminders */}
       {(Array.isArray(reminders) ? reminders : []).length > 0 && (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-800 fill-mode-both space-y-6">
-          <h2 className="text-sm text-muted-foreground tracking-widest uppercase">reminders</h2>
+        <div
+          className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-800 fill-mode-both space-y-6 p-5 rounded-2xl"
+          style={{ background: "linear-gradient(135deg, #141414, #1a1a1a)", borderLeft: "3px solid #c4906b" }}
+        >
+          <h2 className="text-xs tracking-widest uppercase" style={{ color: "#c4906b" }}>reminders</h2>
           <ul className="space-y-3">
             {(Array.isArray(reminders) ? reminders : []).slice(0, 5).map((r) => (
               <li key={r.id} className="flex gap-4 items-baseline">
@@ -255,13 +275,16 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
 
       {/* Aula Messages */}
       {settings?.aula_connected && (Array.isArray(aulaData?.messages) ? aulaData!.messages : []).length > 0 && (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-900 fill-mode-both space-y-6">
-          <h2 className="text-sm text-muted-foreground tracking-widest uppercase">aula.</h2>
+        <div
+          className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-900 fill-mode-both space-y-6 p-5 rounded-2xl"
+          style={{ background: "linear-gradient(135deg, #2a1f0f, #1a1a0f)", borderLeft: "3px solid #e8b86d" }}
+        >
+          <h2 className="text-xs tracking-widest uppercase" style={{ color: "#e8b86d" }}>aula.</h2>
           <ul className="space-y-5">
             {(Array.isArray(aulaData?.messages) ? aulaData!.messages : []).slice(0, 3).map((msg) => (
               <li key={msg.id} className="space-y-1">
                 <p className="text-sm text-foreground">
-                  <span className="text-muted-foreground">{(msg?.sender ?? "").toLowerCase()}: </span>
+                  <span style={{ color: "#e8b86d" }}>{(msg?.sender ?? "").toLowerCase()}: </span>
                   {(msg?.subject ?? "").toLowerCase()}
                 </p>
                 {msg.preview && (
@@ -274,8 +297,18 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
       )}
 
       {/* Emails */}
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-1000 fill-mode-both space-y-6">
-        <h2 className="text-sm text-muted-foreground tracking-widest uppercase">inbox notes</h2>
+      <div
+        className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-1000 fill-mode-both space-y-6 p-5 rounded-2xl"
+        style={{ background: "linear-gradient(135deg, #2a1a0f, #1a1a0f)", borderLeft: "3px solid #c4906b" }}
+      >
+        <h2 className="text-xs tracking-widest uppercase flex items-center gap-2" style={{ color: "#c4906b" }}>
+          inbox notes
+          {(Array.isArray(emails) ? emails : []).length > 0 && (
+            <span className="px-2 py-0.5 rounded-full text-[10px]" style={{ background: "#c4906b", color: "#0f0f0f" }}>
+              {(Array.isArray(emails) ? emails : []).length}
+            </span>
+          )}
+        </h2>
         {emailsLoading ? (
           <div className="space-y-4">
             <div className="h-4 w-full bg-muted/20 animate-pulse rounded" />
@@ -286,7 +319,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
             {(Array.isArray(emails) ? emails : []).map((email) => (
               <li key={email.id} className="space-y-1">
                 <p className="text-sm text-foreground">
-                  <span className="text-muted-foreground">{(email?.from ?? "").toLowerCase()}: </span>
+                  <span style={{ color: "#c4906b" }}>{(email?.from ?? "").toLowerCase()}: </span>
                   {(email?.subject ?? "").toLowerCase()}
                 </p>
                 <p className="text-sm text-accent leading-relaxed">{(email?.summary ?? "").toLowerCase()}</p>
@@ -300,8 +333,11 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
 
       {/* Spotify */}
       {settings?.spotify_connected && spotify && (Array.isArray(spotify.playlists) ? spotify.playlists : []).length > 0 && (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-1000 fill-mode-both space-y-6">
-          <h2 className="text-sm text-muted-foreground tracking-widest uppercase">soundtrack for today</h2>
+        <div
+          className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-1000 fill-mode-both space-y-6 p-5 rounded-2xl"
+          style={{ background: "linear-gradient(135deg, #0f1a0f, #0a1a0a)", borderLeft: "3px solid #1db954" }}
+        >
+          <h2 className="text-xs tracking-widest uppercase" style={{ color: "#1db954" }}>soundtrack for today</h2>
           {spotify.context && (
             <p className="text-sm text-muted-foreground italic">{(spotify?.context ?? "").toLowerCase()}</p>
           )}
@@ -314,7 +350,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
                   rel="noopener noreferrer"
                   className="group flex items-baseline gap-3"
                 >
-                  <span className="text-foreground text-sm group-hover:text-accent transition-colors">{(pl?.name ?? "").toLowerCase()}</span>
+                  <span className="text-sm transition-colors" style={{ color: "#1db954" }}>{(pl?.name ?? "").toLowerCase()}</span>
                   <span className="text-muted-foreground text-xs">↗</span>
                 </a>
                 <p className="text-xs text-muted-foreground mt-1">{(pl?.reason ?? "").toLowerCase()}</p>
@@ -323,6 +359,7 @@ export default function BriefingScreen({ firstName, accessToken }: BriefingScree
           </ul>
         </div>
       )}
+      </div>
 
       {/* Footer */}
       <div className="pt-24 pb-8 animate-in fade-in duration-1000 delay-1000 fill-mode-both flex justify-between items-center">

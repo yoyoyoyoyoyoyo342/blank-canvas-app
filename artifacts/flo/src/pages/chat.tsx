@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGetChatHistory, getGetChatHistoryQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import BottomNav from "@/components/bottom-nav";
+import DesktopNav from "@/components/desktop-nav";
 import { FloFace } from "@/components/FloFace";
 
 interface ChatScreenProps {
@@ -126,7 +127,8 @@ export default function ChatScreen({ accessToken, firstName }: ChatScreenProps) 
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background text-foreground">
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-12 pb-40 max-w-2xl mx-auto w-full space-y-6">
+      <DesktopNav accessToken={accessToken} />
+      <div className="flex-1 overflow-y-auto px-4 md:px-12 md:pl-72 pt-12 pb-40 max-w-2xl md:max-w-[760px] md:mx-auto w-full space-y-6">
         <div className="animate-in fade-in duration-700">
           <h1 className="text-3xl font-light italic tracking-tight text-primary">chat with flo.</h1>
           <p className="mt-1 text-xs text-muted-foreground tracking-wide">
@@ -163,11 +165,18 @@ export default function ChatScreen({ accessToken, firstName }: ChatScreenProps) 
               </div>
             )}
             <div
-              className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed ${
+              className="max-w-[80%] px-4 py-3 text-sm leading-relaxed rounded-2xl"
+              style={
                 msg.role === "user"
-                  ? "bg-accent/10 border border-accent/20 text-foreground"
-                  : "text-foreground/90"
-              }`}
+                  ? {
+                      background: "linear-gradient(135deg, #2a2a2a, #1a1a1a)",
+                      border: "1px solid rgba(74,94,110,0.25)",
+                    }
+                  : {
+                      background: "linear-gradient(135deg, #1a2a35, #1a1a2a)",
+                      border: "1px solid rgba(74,94,110,0.15)",
+                    }
+              }
             >
               {msg.role === "assistant" && (
                 <span className="text-xs text-muted-foreground tracking-widest uppercase block mb-2">flo.</span>
@@ -198,8 +207,8 @@ export default function ChatScreen({ accessToken, firstName }: ChatScreenProps) 
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/10 px-4 md:px-8 py-3 z-40">
-        <div className="max-w-2xl mx-auto flex gap-3 items-center">
+      <div className="fixed bottom-16 md:bottom-0 left-0 md:left-60 right-0 bg-background/95 backdrop-blur-sm border-t border-border/10 px-4 md:px-8 py-3 z-40">
+        <div className="max-w-2xl md:max-w-[760px] mx-auto flex gap-3 items-center focus-within:shadow-[0_0_24px_rgba(74,94,110,0.3)] rounded-md transition-shadow px-2">
           <input
             ref={inputRef}
             type="text"
