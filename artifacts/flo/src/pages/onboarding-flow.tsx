@@ -84,7 +84,7 @@ function Check() {
 
 function PageWelcome() {
   return (
-    <Page page={1}>
+    <Page page={1} bg="#0f0f0f">
       <Particles />
       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8 }}>
         <FloFace size={120} float />
@@ -194,7 +194,7 @@ function BriefCard({ accent, title, delay, inView, children }: { accent: string;
 function PageBriefing() {
   const { ref, inView } = useReveal();
   return (
-    <Page page={3}>
+    <Page page={3} bg="linear-gradient(180deg, #0f1510, #0f1f10)">
       <div ref={ref} className="w-full max-w-md">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -284,7 +284,7 @@ function PageChat() {
     return () => timers.forEach(clearTimeout);
   }, [inView]);
   return (
-    <Page page={4}>
+    <Page page={4} bg="linear-gradient(180deg, #18120f, #1a140f)">
       <div ref={ref} className="w-full max-w-md">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -327,7 +327,7 @@ function ConnRow({ label, desc, delay, inView }: { label: string; desc: string; 
 function PageConnects() {
   const { ref, inView } = useReveal();
   return (
-    <Page page={5}>
+    <Page page={5} bg="linear-gradient(180deg, #0f1218, #0f1a22)">
       <div ref={ref} className="w-full max-w-md">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -359,7 +359,7 @@ function PageConnects() {
 function PageAula() {
   const { ref, inView } = useReveal();
   return (
-    <Page page={6}>
+    <Page page={6} bg="linear-gradient(180deg, #181510, #1a1810)">
       <div ref={ref} className="w-full max-w-md text-center">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -433,7 +433,7 @@ function PrivacyRow({ text, delay, inView }: { text: string; delay: number; inVi
 function PagePrivacy() {
   const { ref, inView } = useReveal();
   return (
-    <Page page={7}>
+    <Page page={7} bg="linear-gradient(180deg, #0f120f, #0f1a10)">
       <div ref={ref} className="w-full max-w-md">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -494,7 +494,7 @@ function PageGetStarted({ onFinish }: { onFinish: () => void }) {
     }
   }
   return (
-    <Page page={8}>
+    <Page page={8} bg="#0f0f0f">
       <div ref={ref} className="flex flex-col items-center text-center gap-6">
         <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
