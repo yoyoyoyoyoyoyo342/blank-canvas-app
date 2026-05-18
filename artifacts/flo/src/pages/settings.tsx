@@ -13,6 +13,7 @@ import {
 } from "@workspace/api-client-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import BottomNav from "@/components/bottom-nav";
+import DesktopNav from "@/components/desktop-nav";
 import Footer from "@/components/footer";
 import { AppPasswordGuide } from "@/components/AppPasswordGuide";
 
@@ -169,7 +170,8 @@ export default function SettingsScreen({ accessToken, firstName, email }: Settin
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground pb-32">
-      <div className="max-w-2xl mx-auto px-6 pt-12 space-y-12">
+      <DesktopNav accessToken={accessToken} />
+      <div className="max-w-2xl md:max-w-4xl mx-auto md:mx-0 md:pl-72 md:pr-12 px-4 sm:px-6 pt-12 space-y-12">
         <div>
           <h1 className="text-4xl font-light italic tracking-tight text-primary">settings.</h1>
         </div>
