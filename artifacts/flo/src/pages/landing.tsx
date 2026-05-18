@@ -114,9 +114,16 @@ export default function LandingPage() {
   return (
     <div className="w-full min-h-screen" style={{ background: BG, color: FG, ...FONT }}>
       <section className="relative w-full min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-        <div
+        <motion.div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: `radial-gradient(circle at 50% 40%, ${ACCENT}0d, transparent 60%)` }}
+          animate={{
+            background: [
+              `radial-gradient(circle at 30% 40%, ${ACCENT}1a, ${BG} 60%)`,
+              `radial-gradient(circle at 70% 60%, #7eb8c91a, ${BG} 60%)`,
+              `radial-gradient(circle at 30% 40%, ${ACCENT}1a, ${BG} 60%)`,
+            ],
+          }}
+          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <FloFace size={120} float />
@@ -331,7 +338,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
             className="p-8 rounded-2xl relative"
-            style={{ background: CARD, border: `1px solid ${ACCENT}`, boxShadow: `0 0 40px ${ACCENT}4d` }}
+            style={{ background: CARD, border: `1px solid ${ACCENT}`, boxShadow: `0 0 60px ${ACCENT}4d` }}
           >
             <span className="absolute top-4 right-4 text-xs px-2 py-1 rounded-full" style={{ background: `${ACCENT}33`, color: FG, ...FONT }}>save 25% yearly</span>
             <h3 className="text-2xl italic mb-6" style={FONT}>flo. plus</h3>
