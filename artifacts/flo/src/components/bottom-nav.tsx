@@ -40,7 +40,7 @@ export default function BottomNav({ accessToken }: BottomNavProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-border/20 bg-background/95 backdrop-blur-sm z-50">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/20 bg-background/95 backdrop-blur-sm z-50">
       <div className="flex justify-around items-center max-w-lg mx-auto h-16 px-6">
         {items.map((item) => {
           const active = location === item.path || (item.path !== "/" && location.startsWith(item.path));
